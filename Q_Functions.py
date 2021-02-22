@@ -113,6 +113,86 @@ def Q_subtractArray(from_this_array: list, subtract_this_array: list, decimalPla
     return result
 
 
+def Q_zigZag(array: list) -> list:
+    """
+    Returns a 1D list of elements extracted from following a zigzag path through the provided array.
+    Zigzag is defined as
+        Starting at (0, 0)
+        Moving right 1 element
+        Moving diagonally down-left until the first column is reached
+        Moving down 1 element
+        Moving diagnolly up-right until the first row is reached
+        Moving right 1 element - repeating the above steps until all elements have been traversed
+    """
+    DIRECTIONS = {'UP': (-1, 0),
+                  'DOWN': (1, 0),
+                  'LEFT': (0, -1),
+                  'RIGHT': (0, 1),
+                  'UP-RIGHT': (-1, 1),
+                  'DOWN-LEFT': (1, -1)
+                  }
+    ARRAY_HEIGHT = len(array)
+    ARRAY_WIDTH = len(array[0])
+    STARTING_POSITION = (0, 0)
+    zigzag_elements = []
+
+    def isValidPosition(row: int, column: int) -> bool:
+        if 0 <= row <= ARRAY_HEIGHT - 1:
+            if 0 <= column <= ARRAY_WIDTH - 1:
+                # print(f'Testing row: {row}  column {column} - PASS')
+                return True
+        # print(f'Testing row: {row}  column {column} - FAIL')
+        return False
+
+    row, column = STARTING_POSITION
+    direction = (0, 0)
+    while row < ARRAY_HEIGHT and column < ARRAY_WIDTH:
+        # print(f'Tring to append row: {row}  column: {column}')
+        zigzag_elements.append(array[row][column])
+        if row == 0:  # Top of array - try to move right; move down instead if this is the top-right of the array.
+            if isValidPosition(row=row, column=column + 1):
+                direction = DIRECTIONS['RIGHT']
+                row, column = row + direction[0], column + direction[1]
+                # print(f'Tring to append row: {row}  column: {column}')
+                zigzag_elements.append(array[row][column])
+                direction = DIRECTIONS['DOWN-LEFT']
+            elif isValidPosition(row=row + 1, column=column):
+                direction = DIRECTIONS['DOWN']
+                row, column = row + direction[0], column + direction[1]
+                # print(f'Tring to append row: {row}  column: {column}')
+                zigzag_elements.append(array[row][column])
+                direction = DIRECTIONS['DOWN-LEFT']
+        elif row == ARRAY_HEIGHT - 1 and column < ARRAY_WIDTH - 1:  # Bottom of array, but not bottom-right corner.
+            if isValidPosition(row=row, column=column + 1):
+                direction = DIRECTIONS['RIGHT']
+                row, column = row + direction[0], column + direction[1]
+                # print(f'Tring to append row: {row}  column: {column}')
+                zigzag_elements.append(array[row][column])
+                direction = DIRECTIONS['UP-RIGHT']
+        elif column == 0:  # Left of array -  try to move down; move right instead if this is the bottom-left of the array.
+            if isValidPosition(row=row + 1, column=column):
+                direction = DIRECTIONS['DOWN']
+                row, column = row + direction[0], column + direction[1]
+                # print(f'Tring to append row: {row}  column: {column}')
+                zigzag_elements.append(array[row][column])
+                direction = DIRECTIONS['UP-RIGHT']
+            elif isValidPosition(row=row, column=column + 1):
+                direction = DIRECTIONS['RIGHT']
+                row, column = row + direction[0], column + direction[1]
+                # print(f'Tring to append row: {row}  column: {column}')
+                zigzag_elements.append(array[row][column])
+                direction = DIRECTIONS['UP-RIGHT']
+        elif column == ARRAY_WIDTH - 1 and row > 0:  # Right-edge of array, but not top-right corner.
+            if isValidPosition(row=row + 1, column=column):
+                direction = DIRECTIONS['DOWN']
+                row, column = row + direction[0], column + direction[1]
+                # print(f'Tring to append row: {row}  column: {column}')
+                zigzag_elements.append(array[row][column])
+                direction = DIRECTIONS['DOWN-LEFT']
+        row, column = row + direction[0], column + direction[1]
+    return zigzag_elements
+
+
 def Q_DCT(array: list, dct_type: str = 'II') -> list:
     ARRAY_DIM = 8
     dct = [[0 for column in range(ARRAY_DIM)] for row in range(ARRAY_DIM)]
@@ -310,6 +390,22 @@ def main():
     Q_printList(test_array)
     print('--------Difference-------------------')
     Q_printList(Q_subtractArray(from_this_array=test_array, subtract_this_array=output_block, decimalPlaces=0))
+    print('--------ZIG ZAG-------------------')
+    zigzag_test = [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]]
+    zigzag_output = Q_zigZag(array=zigzag_test)
+    Q_printList(array=zigzag_test)
+    print(zigzag_output)
+    print('--------ZIG ZAG 2-------------------')
+    zigzag_test = [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15]]
+    zigzag_output = Q_zigZag(array=zigzag_test)
+    Q_printList(array=zigzag_test)
+    print(zigzag_output)
+    print('--------ZIG ZAG 3-------------------')
+    zigzag_test = [[1, 2], [3, 4]]
+    zigzag_output = Q_zigZag(array=zigzag_test)
+    Q_printList(array=zigzag_test)
+    print(zigzag_output)
+
 
 if __name__ == "__main__":
     main()
