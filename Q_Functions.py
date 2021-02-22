@@ -116,13 +116,12 @@ def Q_subtractArray(from_this_array: list, subtract_this_array: list, decimalPla
 def Q_zigZag(array: list) -> list:
     """
     Returns a 1D list of elements extracted from following a zigzag path through the provided array.
-    Zigzag is defined as
-        Starting at (0, 0)
-        Moving right 1 element
-        Moving diagonally down-left until the first column is reached
-        Moving down 1 element
-        Moving diagnolly up-right until the first row is reached
-        Moving right 1 element - repeating the above steps until all elements have been traversed
+    Zigzag is defined as starting at row, column position (0, 0), then:
+        Moving right 1 element, or down 1 element if this is the right edge of the array
+        Moving diagnally down-left until the first column is reached, or the bottom row is reached
+        Moving down 1 element, or right 1 element if this is the bottom row
+        Moving diagnally up-right until the first row is reached
+        - repeating the above steps until all elements have been traversed
     """
     DIRECTIONS = {'UP': (-1, 0),
                   'DOWN': (1, 0),
