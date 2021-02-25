@@ -27,20 +27,26 @@ def Q_constrain(value, lowerLimit=0, upperLimit=1):
         return value
 
 
-def Q_map(value, lowerLimit, upperLimit, scaledLowerLimit, scaledUpperLimit):
-    temp_val = value - lowerLimit
-    temp_scale = temp_val / (upperLimit - lowerLimit)
-    temp_output = ((scaledUpperLimit - scaledLowerLimit) * temp_scale) + scaledLowerLimit
-    return temp_output
+def Q_map(value: float, lower_limit: float, upper_limit: float, scaled_lower_limit: float, scaled_upper_limit: float) -> float:
+    """Adjusts the given input value, which falls within a linear range between lower_limit and upper_limit
+    to between the separate linear range of scaled_lower_limit and scaled_upper_limit.
+
+    Example: value = 0.5, lower_limit = 0, upper_limit = 1, scaled_lower_limit = 0, scaled_upper_limit = 100 -> 50
+    Example: value = 0.1, lower_limit = 0, upper_limit = 1, scaled_lower_limit = 100, scaled_upper_limit = 200 -> 110
+    """
+    temp_value = value - lower_limit
+    temp_scale = temp_value / (upper_limit - lower_limit)
+    output = ((scaled_upper_limit - scaled_lower_limit) * temp_scale) + scaled_lower_limit
+    return output
 
 
-def Q_quantize(value: (float, int), max_value: (float, int), thresholds: (float, int), min_value: (float, int) = 0) -> (float, int):
+def Q_quantize(value: (float, int), max_value: (float, int), num_thresholds: (float, int), min_value: (float, int) = 0) -> (float, int):
     # return round(value * thresholds / max_value) * max_value / thresholds
-    if type(value) == float or type(thresholds) == float or type(min_value) == float or type(max_value) == float:
+    if type(value) == float or type(num_thresholds) == float or type(min_value) == float or type(max_value) == float:
         return_type = float
     else:
         return_type = int
-    return return_type(round((value - min_value) * thresholds / (max_value - min_value)) * (max_value - min_value) / thresholds + min_value)
+    return return_type(round((value - min_value) * num_thresholds / (max_value - min_value)) * (max_value - min_value) / num_thresholds + min_value)
 
 
 def Q_what(array: list) -> list:
@@ -114,14 +120,13 @@ def Q_subtractArray(from_this_array: list, subtract_this_array: list, decimalPla
 
 
 def Q_zigZag(array: list) -> list:
-    """
-    Returns a 1D list of elements extracted from following a zigzag path through the provided array.
+    """Returns a 1D list of elements extracted from following a zigzag path through the provided array.
     Zigzag is defined as starting at row, column position (0, 0), then:
         Moving right 1 element, or down 1 element if this is the right edge of the array
         Moving diagnally down-left until the first column is reached, or the bottom row is reached
         Moving down 1 element, or right 1 element if this is the bottom row
-        Moving diagnally up-right until the first row is reached
-        - repeating the above steps until all elements have been traversed
+        Moving diagnally up-right until the first row is reached, or the right edge is reached
+    - repeating the above steps until all elements have been traversed
     """
     DIRECTIONS = {'UP': (-1, 0),
                   'DOWN': (1, 0),
@@ -193,6 +198,7 @@ def Q_zigZag(array: list) -> list:
 
 
 def Q_DCT(array: list, dct_type: str = 'II') -> list:
+    assert(dct_type == 'II')
     ARRAY_DIM = 8
     dct = [[0 for column in range(ARRAY_DIM)] for row in range(ARRAY_DIM)]
     sqrt_2 = math.sqrt(2)
@@ -221,6 +227,7 @@ def Q_DCT(array: list, dct_type: str = 'II') -> list:
 
 
 def Q_IDCT(array: list, dct_type: str = 'III'):
+    assert(dct_type == 'III')
     ARRAY_DIM = 8
     idct = [[0 for column in range(ARRAY_DIM)] for row in range(ARRAY_DIM)]
     sqrt_2 = math.sqrt(2)
@@ -249,83 +256,83 @@ def Q_IDCT(array: list, dct_type: str = 'III'):
 
 
 def main():
-    # # Q_constrain tests
-    # print('Q_constrain')
-    # print(Q_constrain(value=0.5, lowerLimit=0, upperLimit=1))
-    # assert(Q_constrain(value=0.5, lowerLimit=0, upperLimit=1) == 0.5)
-    # print(Q_constrain(value=500, lowerLimit=1000, upperLimit=1500))
-    # assert(Q_constrain(value=500, lowerLimit=1000, upperLimit=1500) == 1000)
-    # print(Q_constrain(value=-2, lowerLimit=0, upperLimit=10))
-    # assert(Q_constrain(value=-2, lowerLimit=0, upperLimit=10) == 0)
-    # print(Q_constrain(value=-2, lowerLimit=-10, upperLimit=-5))
-    # assert(Q_constrain(value=-2, lowerLimit=-10, upperLimit=-5) == -5)
-    # print(Q_constrain(value=2000.5, lowerLimit=-10, upperLimit=250.362))
-    # assert(Q_constrain(value=2000.5, lowerLimit=-10, upperLimit=250.362) == 250.362)
+    # Q_constrain tests
+    print('Q_constrain')
+    print(Q_constrain(value=0.5, lowerLimit=0, upperLimit=1))
+    assert(Q_constrain(value=0.5, lowerLimit=0, upperLimit=1) == 0.5)
+    print(Q_constrain(value=500, lowerLimit=1000, upperLimit=1500))
+    assert(Q_constrain(value=500, lowerLimit=1000, upperLimit=1500) == 1000)
+    print(Q_constrain(value=-2, lowerLimit=0, upperLimit=10))
+    assert(Q_constrain(value=-2, lowerLimit=0, upperLimit=10) == 0)
+    print(Q_constrain(value=-2, lowerLimit=-10, upperLimit=-5))
+    assert(Q_constrain(value=-2, lowerLimit=-10, upperLimit=-5) == -5)
+    print(Q_constrain(value=2000.5, lowerLimit=-10, upperLimit=250.362))
+    assert(Q_constrain(value=2000.5, lowerLimit=-10, upperLimit=250.362) == 250.362)
 
-    # # Q_map tests
-    # print('Q_map')
-    # print(Q_map(value=0.5, lowerLimit=0, upperLimit=1, scaledLowerLimit=0, scaledUpperLimit=100))
-    # assert(Q_map(value=0.5, lowerLimit=0, upperLimit=1, scaledLowerLimit=0, scaledUpperLimit=100) == 50)
-    # print(Q_map(value=0.9, lowerLimit=0, upperLimit=1, scaledLowerLimit=0, scaledUpperLimit=100))
-    # assert(Q_map(value=0.9, lowerLimit=0, upperLimit=1, scaledLowerLimit=0, scaledUpperLimit=100) == 90)
+    # Q_map tests
+    print('Q_map')
+    print(Q_map(value=0.5, lower_limit=0, upper_limit=1, scaled_lower_limit=0, scaled_upper_limit=100))
+    assert(Q_map(value=0.5, lower_limit=0, upper_limit=1, scaled_lower_limit=0, scaled_upper_limit=100) == 50)
+    print(Q_map(value=0.9, lower_limit=0, upper_limit=1, scaled_lower_limit=0, scaled_upper_limit=100))
+    assert(Q_map(value=0.9, lower_limit=0, upper_limit=1, scaled_lower_limit=0, scaled_upper_limit=100) == 90)
 
-    # # Q_MinMaxScaler tests
-    # print('Q_MinMaxScaler')
-    # items = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
-    # print(items)
-    # Q_scale = Q_MinMaxScaler(items)
-    # transformed = Q_scale.transform()
-    # print(transformed)
-    # reverted = Q_scale.reverse_transform(transformed)
-    # print(reverted)
-    # assert(items == reverted)
-    # fake_data = [pnoise2(x / 9, 1.678) for x in range(5)]
-    # print(fake_data)
-    # fake_reverted = Q_scale.reverse_transform(fake_data)
-    # print(fake_reverted)
+    # Q_MinMaxScaler tests
+    print('Q_MinMaxScaler')
+    items = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
+    print(items)
+    Q_scale = Q_MinMaxScaler(items)
+    transformed = Q_scale.transform()
+    print(transformed)
+    reverted = Q_scale.reverse_transform(transformed)
+    print(reverted)
+    assert(items == reverted)
+    fake_data = [pnoise2(x / 9, 1.678) for x in range(5)]
+    print(fake_data)
+    fake_reverted = Q_scale.reverse_transform(fake_data)
+    print(fake_reverted)
 
-    # # Q_quantize tests
-    # print('Q_quantize')
-    # print(0, Q_quantize(0, 100, 4))
-    # assert(Q_quantize(0, 100, 4) == 0)
-    # print(1, Q_quantize(1, 100, 4))
-    # assert(Q_quantize(1, 100, 4) == 0)
-    # print(20, Q_quantize(20, 100, 4))
-    # assert(Q_quantize(20, 100, 4) == 25)
-    # print(26, Q_quantize(26, 100, 4))
-    # assert(Q_quantize(26, 100, 4) == 25)
-    # print(45, Q_quantize(45, 100, 4))
-    # assert(Q_quantize(45, 100, 4) == 50)
-    # print(66, Q_quantize(66, 100, 4))
-    # assert(Q_quantize(66, 100, 4) == 75)
-    # print(75, Q_quantize(75, 100, 4))
-    # assert(Q_quantize(75, 100, 4) == 75)
-    # print(99, Q_quantize(99, 100, 4))
-    # assert(Q_quantize(99, 100, 4) == 100)
-    # print(100, Q_quantize(100, 100, 4))
-    # assert(Q_quantize(100, 100, 4) == 100)
+    # Q_quantize tests
+    print('Q_quantize')
+    print(0, Q_quantize(0, 100, 4))
+    assert(Q_quantize(0, 100, 4) == 0)
+    print(1, Q_quantize(1, 100, 4))
+    assert(Q_quantize(1, 100, 4) == 0)
+    print(20, Q_quantize(20, 100, 4))
+    assert(Q_quantize(20, 100, 4) == 25)
+    print(26, Q_quantize(26, 100, 4))
+    assert(Q_quantize(26, 100, 4) == 25)
+    print(45, Q_quantize(45, 100, 4))
+    assert(Q_quantize(45, 100, 4) == 50)
+    print(66, Q_quantize(66, 100, 4))
+    assert(Q_quantize(66, 100, 4) == 75)
+    print(75, Q_quantize(75, 100, 4))
+    assert(Q_quantize(75, 100, 4) == 75)
+    print(99, Q_quantize(99, 100, 4))
+    assert(Q_quantize(99, 100, 4) == 100)
+    print(100, Q_quantize(100, 100, 4))
+    assert(Q_quantize(100, 100, 4) == 100)
 
-    # print(50, Q_quantize(50, min_value=50, max_value=100, thresholds=5))
-    # assert(Q_quantize(50, min_value=50, max_value=100, thresholds=5) == 50)
-    # print(54, Q_quantize(54, min_value=50, max_value=100, thresholds=5))
-    # assert(Q_quantize(54, min_value=50, max_value=100, thresholds=5) == 50)
-    # print(58, Q_quantize(58, min_value=50, max_value=100, thresholds=5))
-    # assert(Q_quantize(58, min_value=50, max_value=100, thresholds=5) == 60)
-    # print(88, Q_quantize(88, min_value=50, max_value=100, thresholds=5))
-    # assert(Q_quantize(88, min_value=50, max_value=100, thresholds=5) == 90)
-    # print(98, Q_quantize(98, min_value=50, max_value=100, thresholds=5))
-    # assert(Q_quantize(98, min_value=50, max_value=100, thresholds=5) == 100)
-    # print(100, Q_quantize(100, min_value=50, max_value=100, thresholds=5))
-    # assert(Q_quantize(100, min_value=50, max_value=100, thresholds=5) == 100)
+    print(50, Q_quantize(50, min_value=50, max_value=100, num_thresholds=5))
+    assert(Q_quantize(50, min_value=50, max_value=100, num_thresholds=5) == 50)
+    print(54, Q_quantize(54, min_value=50, max_value=100, num_thresholds=5))
+    assert(Q_quantize(54, min_value=50, max_value=100, num_thresholds=5) == 50)
+    print(58, Q_quantize(58, min_value=50, max_value=100, num_thresholds=5))
+    assert(Q_quantize(58, min_value=50, max_value=100, num_thresholds=5) == 60)
+    print(88, Q_quantize(88, min_value=50, max_value=100, num_thresholds=5))
+    assert(Q_quantize(88, min_value=50, max_value=100, num_thresholds=5) == 90)
+    print(98, Q_quantize(98, min_value=50, max_value=100, num_thresholds=5))
+    assert(Q_quantize(98, min_value=50, max_value=100, num_thresholds=5) == 100)
+    print(100, Q_quantize(100, min_value=50, max_value=100, num_thresholds=5))
+    assert(Q_quantize(100, min_value=50, max_value=100, num_thresholds=5) == 100)
 
-    # # Q_what
-    # print('Q_what')
-    # test_array = [[112, 48, 70, 107, 102, 102, 32, 37], [142, 39, 42, 76, 118, 81, 114, 83], [113, 133, 145, 89, 48, 59, 35, 111], [66, 67, 87, 65, 85, 68, 49, 108], [91, 59, 52, 85, 97, 47, 60, 139], [92, 58, 87, 23, 145, 20, 89, 115], [112, 139, 50, 141, 39, 102, 110, 76], [91, 65, 33, 62, 101, 119, 107, 41]]
-    # # test_array = [[random.randint(20, 147) for columns in range(8)] for rows in range(8)]
-    # print(test_array)
-    # transformed_array = Q_what(array=test_array)
-    # print(transformed_array)
-    # assert(transformed_array == [[187, 57, 102, 177, 167, 167, 24, 34], [248, 38, 44, 114, 199, 124, 191, 128], [189, 230, 255, 140, 57, 79, 30, 185], [93, 95, 136, 91, 132, 97, 59, 179], [144, 79, 65, 132, 157, 55, 81, 242], [146, 77, 136, 6, 255, 0, 140, 193], [187, 242, 61, 246, 38, 167, 183, 114], [144, 91, 26, 85, 165, 201, 177, 42]])
+    # Q_what
+    print('Q_what')
+    test_array = [[112, 48, 70, 107, 102, 102, 32, 37], [142, 39, 42, 76, 118, 81, 114, 83], [113, 133, 145, 89, 48, 59, 35, 111], [66, 67, 87, 65, 85, 68, 49, 108], [91, 59, 52, 85, 97, 47, 60, 139], [92, 58, 87, 23, 145, 20, 89, 115], [112, 139, 50, 141, 39, 102, 110, 76], [91, 65, 33, 62, 101, 119, 107, 41]]
+    # test_array = [[random.randint(20, 147) for columns in range(8)] for rows in range(8)]
+    print(test_array)
+    transformed_array = Q_what(array=test_array)
+    print(transformed_array)
+    assert(transformed_array == [[187, 57, 102, 177, 167, 167, 24, 34], [248, 38, 44, 114, 199, 124, 191, 128], [189, 230, 255, 140, 57, 79, 30, 185], [93, 95, 136, 91, 132, 97, 59, 179], [144, 79, 65, 132, 157, 55, 81, 242], [146, 77, 136, 6, 255, 0, 140, 193], [187, 242, 61, 246, 38, 167, 183, 114], [144, 91, 26, 85, 165, 201, 177, 42]])
 
     # # Q_DCT
     # print('Q_DCT')
