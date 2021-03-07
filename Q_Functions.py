@@ -3,6 +3,28 @@ import math
 import itertools
 
 
+class Q_Vector2D:
+    def __init__(self, angle: float, magnitude: float):
+        self.angle = angle
+        self.magnitude = magnitude
+
+    def __str__(self):
+        return f'Q_Vector2D(angle={self.angle}, magnitude={self.magnitude})'
+
+    def __repr__(self):
+        return f'Q_Vector2D(angle={self.angle}, magnitude={self.magnitude})'
+
+    def __add__(self, other):
+        y_component = (math.sin(self.angle) * self.magnitude) + (math.sin(other.angle) * other.magnitude)
+        x_component = (math.cos(self.angle) * self.magnitude) + (math.cos(other.angle) * other.magnitude)
+        if x_component == 0:
+            angle = math.PI / 2.0 if y_component > 0 else 3 * math.pi / 2.0
+        else:
+            angle = math.atan(y_component / x_component)
+        magnitude = math.sqrt((y_component ** 2) + (x_component ** 2))
+        return Q_Vector2D(angle, magnitude)
+
+
 class Q_MinMaxScaler:
     def __init__(self, items):
         self.input = items
@@ -411,6 +433,13 @@ def main():
     zigzag_output = Q_zigZag(array=zigzag_test)
     Q_printList(array=zigzag_test)
     print(zigzag_output)
+    PI = math.pi
+    TWO_PI = math.pi * 2.0
+    v1 = Q_Vector2D(angle=0, magnitude=10)
+    v2 = Q_Vector2D(angle=PI / 2, magnitude=10)
+    print(v1, v2)
+    print(v1 + v2)
+    # print(math.degrees(add_vectors(v1, v2)[0]))
 
 
 if __name__ == "__main__":
