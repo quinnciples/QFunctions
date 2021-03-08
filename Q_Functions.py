@@ -1,6 +1,7 @@
 from noise import pnoise2
 import math
 import itertools
+import random
 
 
 class Q_Vector2D:
@@ -23,6 +24,24 @@ class Q_Vector2D:
             angle = math.atan(y_component / x_component)
         magnitude = math.sqrt((y_component ** 2) + (x_component ** 2))
         return Q_Vector2D(angle, magnitude)
+
+    @property
+    def x(self):
+        return math.cos(self.angle) * self.magnitude
+
+    @property
+    def y(self):
+        return math.sin(self.angle) * self.magnitude
+
+    def limit(self, maximum):
+        self.magnitude = min(self.magnitude, maximum)
+
+    @staticmethod
+    def random():
+        angle = random.random() * math.pi * 2.0
+        magnitude = random.random()
+        return Q_Vector2D(angle=angle, magnitude=magnitude)
+
 
 
 class Q_MinMaxScaler:
@@ -438,7 +457,8 @@ def main():
     v1 = Q_Vector2D(angle=0, magnitude=10)
     v2 = Q_Vector2D(angle=PI / 2, magnitude=10)
     print(v1, v2)
-    print(v1 + v2)
+    v3 = v1 + v2
+    print(v3, v3.x, v3.y)
     # print(math.degrees(add_vectors(v1, v2)[0]))
 
 
