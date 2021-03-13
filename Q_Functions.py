@@ -4,24 +4,56 @@ import itertools
 import random
 
 
+def Q_weighted_choice(list_of_choices: list, number_of_choices: int = 1):
+    total = sum(w for c, w in list_of_choices)
+    r1 = random.uniform(0, total)
+    r2 = r1
+    while r2 == r1:
+        r2 = random.uniform(0, total)
+
+    upto = 0
+    for c, w in list_of_choices:
+        if upto + w >= r1:
+            choice1 = c
+            break
+        upto += w
+
+    upto = 0
+    for c, w in list_of_choices:
+        if upto + w >= r2:
+            choice2 = c
+            return choice1, choice2
+            break
+        upto += w
+
+    assert False, "Shouldn't get here"
 class Q_Vector2D:
     def __init__(self, angle: float, magnitude: float):
         self.angle = angle
         self.magnitude = magnitude
 
     def __str__(self):
-        return f'Q_Vector2D(angle={self.angle}, magnitude={self.magnitude})'
+        return f'Q_Vector2D(angle={self.angle}, magnitude={self.magnitude}, x={self.x}, y={self.y})'
 
     def __repr__(self):
-        return f'Q_Vector2D(angle={self.angle}, magnitude={self.magnitude})'
+        return f'Q_Vector2D(angle={self.angle}, magnitude={self.magnitude} x={self.x}, y={self.y})'
 
     def __add__(self, other):
+        if self.magnitude == 0 and other.magnitude == 0:
+            return self
+        if self.magnitude == 0:
+            return other
+        if other.magnitude == 0:
+            return self
         y_component = (math.sin(self.angle) * self.magnitude) + (math.sin(other.angle) * other.magnitude)
         x_component = (math.cos(self.angle) * self.magnitude) + (math.cos(other.angle) * other.magnitude)
         if x_component == 0:
-            angle = math.PI / 2.0 if y_component > 0 else 3 * math.pi / 2.0
+            angle = math.pi / 2.0 if y_component >= 0 else 3 * math.pi / 2.0
         else:
-            angle = math.atan(y_component / x_component)
+            if x_component > 0:
+                angle = math.atan(y_component / x_component)
+            else:
+                angle = math.pi + math.atan(y_component / x_component)
         magnitude = math.sqrt((y_component ** 2) + (x_component ** 2))
         return Q_Vector2D(angle, magnitude)
 
@@ -33,6 +65,10 @@ class Q_Vector2D:
     def y(self):
         return math.sin(self.angle) * self.magnitude
 
+    @property
+    def degrees(self):
+        return Q_map(self.angle, 0, math.pi * 2.0, 0, 360)
+
     def limit(self, maximum):
         self.magnitude = min(self.magnitude, maximum)
 
@@ -41,7 +77,6 @@ class Q_Vector2D:
         angle = random.random() * math.pi * 2.0
         magnitude = random.random()
         return Q_Vector2D(angle=angle, magnitude=magnitude)
-
 
 
 class Q_MinMaxScaler:
@@ -454,12 +489,23 @@ def main():
     print(zigzag_output)
     PI = math.pi
     TWO_PI = math.pi * 2.0
-    v1 = Q_Vector2D(angle=0, magnitude=10)
-    v2 = Q_Vector2D(angle=PI / 2, magnitude=10)
+    v1 = Q_Vector2D(angle=PI, magnitude=10)
+    v2 = Q_Vector2D(angle=PI, magnitude=0)
     print(v1, v2)
     v3 = v1 + v2
-    print(v3, v3.x, v3.y)
+    print(v3, v3.x, v3.y, v3.degrees)
     # print(math.degrees(add_vectors(v1, v2)[0]))
+
+    possibilities = [(0, .35), (1, .15), (2, 0.25), (3, 0.25)]
+    results = {}
+    test_iterations = 500000
+    for _ in range(test_iterations):
+        i = Q_weighted_choice(possibilities)
+        results[i[0]] = results.get(i[0], 0) + 1
+        results[i[1]] = results.get(i[1], 0) + 1
+    for k in sorted(results):
+        print(k, results[k] / (test_iterations * 2.0))
+
 
 
 if __name__ == "__main__":
