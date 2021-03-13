@@ -4,29 +4,27 @@ import itertools
 import random
 
 
-def Q_weighted_choice(list_of_choices: list, number_of_choices: int = 1):
-    total = sum(w for c, w in list_of_choices)
-    r1 = random.uniform(0, total)
-    r2 = r1
-    while r2 == r1:
-        r2 = random.uniform(0, total)
+def Q_weighted_choice(list_of_choices: list, number_of_choices: int = 1, replacement: bool = False):
+    all_choices = [_ for _ in list_of_choices]
+    results = []
+    for _ in range(number_of_choices):
+        total = sum(w for c, w in all_choices)
+        r1 = random.uniform(0, total)
+        upto = 0
+        for c, w in all_choices:
+            if upto + w >= r1:
+                results.append(c)
+                # print(results)
+                if not replacement:
+                    all_choices.remove((c, w))
+                # print(results)
+                # print(f'Choice {_} made.')
+                break
+            upto += w
 
-    upto = 0
-    for c, w in list_of_choices:
-        if upto + w >= r1:
-            choice1 = c
-            break
-        upto += w
+    return results
 
-    upto = 0
-    for c, w in list_of_choices:
-        if upto + w >= r2:
-            choice2 = c
-            return choice1, choice2
-            break
-        upto += w
-
-    assert False, "Shouldn't get here"
+    # assert False, "Shouldn't get here"
 class Q_Vector2D:
     def __init__(self, angle: float, magnitude: float):
         self.angle = angle
@@ -500,7 +498,8 @@ def main():
     results = {}
     test_iterations = 500000
     for _ in range(test_iterations):
-        i = Q_weighted_choice(possibilities)
+        i = Q_weighted_choice(possibilities, number_of_choices=2, replacement=True)
+        # print(i)
         results[i[0]] = results.get(i[0], 0) + 1
         results[i[1]] = results.get(i[1], 0) + 1
     for k in sorted(results):
