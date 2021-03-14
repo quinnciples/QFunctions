@@ -2,29 +2,69 @@ from noise import pnoise2
 import math
 import itertools
 import random
+import datetime
 
 
 def Q_weighted_choice(list_of_choices: list, number_of_choices: int = 1, replacement: bool = False):
     all_choices = [_ for _ in list_of_choices]
     results = []
     for _ in range(number_of_choices):
-        total = sum(w for c, w in all_choices)
-        r1 = random.uniform(0, total)
+        total_weight = sum(weight for item, weight in all_choices)
+        random_weight = random.uniform(0, total_weight)
         upto = 0
-        for c, w in all_choices:
-            if upto + w >= r1:
-                results.append(c)
-                # print(results)
+        for item, weight in all_choices:
+            upto += weight
+            if upto >= random_weight:
+                results.append(item)
                 if not replacement:
-                    all_choices.remove((c, w))
-                # print(results)
-                # print(f'Choice {_} made.')
+                    all_choices.remove((item, weight))
                 break
-            upto += w
+    return results
+
+
+def Q_weighted_choice2(list_of_choices: list, number_of_choices: int = 1, replacement: bool = False):
+    all_choices = [_ for _ in list_of_choices]
+    results = []
+    total_weight = sum(weight for item, weight in all_choices)
+    random_weight = random.uniform(0, total_weight)
+    upto = 0
+    for idx in range(len(all_choices)):
+        upto += all_choices[idx][1]
+        if upto >= random_weight:
+            if not replacement:
+                item = all_choices.pop(idx)
+            else:
+                item = all_choices[idx]
+            results.append(item[0])
+            break
+    if number_of_choices > 1:
+        results.extend(result for result in Q_weighted_choice2(list_of_choices=all_choices, number_of_choices=number_of_choices - 1, replacement=replacement))
 
     return results
 
-    # assert False, "Shouldn't get here"
+
+def Q_weighted_choice3(list_of_choices: list, list_of_weights: list, number_of_choices: int = 1, replacement: bool = False):
+    all_choices = [_ for _ in list_of_choices]
+    all_weights = [_ for _ in list_of_weights]
+    assert len(all_choices) == len(all_weights)
+    results = []
+    for _ in range(number_of_choices):
+        total_weight = sum(weight for weight in all_weights)
+        random_weight = random.uniform(0, total_weight)
+        upto = 0
+        for idx in range(len(all_choices)):
+            upto += all_weights[idx]
+            if upto >= random_weight:
+                if not replacement:
+                    item = all_choices.pop(idx)
+                    all_weights.pop(idx)
+                else:
+                    item = all_choices[idx]
+                results.append(item)
+                break
+    return results
+
+
 class Q_Vector2D:
     def __init__(self, angle: float, magnitude: float):
         self.angle = angle
@@ -34,7 +74,7 @@ class Q_Vector2D:
         return f'Q_Vector2D(angle={self.angle}, magnitude={self.magnitude}, x={self.x}, y={self.y})'
 
     def __repr__(self):
-        return f'Q_Vector2D(angle={self.angle}, magnitude={self.magnitude} x={self.x}, y={self.y})'
+        return f'Q_Vector2D(angle={self.angle}, magnitude={self.magnitude})'
 
     def __add__(self, other):
         if self.magnitude == 0 and other.magnitude == 0:
@@ -496,16 +536,48 @@ def main():
 
     possibilities = [(0, .35), (1, .15), (2, 0.25), (3, 0.25)]
     results = {}
-    test_iterations = 500000
+    test_iterations = 500_000
+    start_time = datetime.datetime.now()
     for _ in range(test_iterations):
-        i = Q_weighted_choice(possibilities, number_of_choices=2, replacement=True)
+        i = Q_weighted_choice(possibilities, number_of_choices=4, replacement=True)
         # print(i)
         results[i[0]] = results.get(i[0], 0) + 1
         results[i[1]] = results.get(i[1], 0) + 1
+        results[i[2]] = results.get(i[2], 0) + 1
+        results[i[3]] = results.get(i[3], 0) + 1
     for k in sorted(results):
-        print(k, results[k] / (test_iterations * 2.0))
+        print(k, possibilities[k][1], results[k] / (test_iterations * 4.0))
+    print(datetime.datetime.now() - start_time)
 
+    possibilities = [(0, .35), (1, .15), (2, 0.25), (3, 0.25)]
+    results = {}
+    test_iterations = 500_000
+    start_time = datetime.datetime.now()
+    for _ in range(test_iterations):
+        i = Q_weighted_choice2(possibilities, number_of_choices=4, replacement=True)
+        # print(i)
+        results[i[0]] = results.get(i[0], 0) + 1
+        results[i[1]] = results.get(i[1], 0) + 1
+        results[i[2]] = results.get(i[2], 0) + 1
+        results[i[3]] = results.get(i[3], 0) + 1
+    for k in sorted(results):
+        print(k, possibilities[k][1], results[k] / (test_iterations * 4.0))
+    print(datetime.datetime.now() - start_time)
 
+    possibilities = [0, 1, 2, 3]
+    weights = [0.35, 0.15, 0.25, 0.25]
+    results = {}
+    test_iterations = 500_000
+    start_time = datetime.datetime.now()
+    for _ in range(test_iterations):
+        i = Q_weighted_choice3(list_of_choices=possibilities, list_of_weights=weights, number_of_choices=4, replacement=True)
+        results[i[0]] = results.get(i[0], 0) + 1
+        results[i[1]] = results.get(i[1], 0) + 1
+        results[i[2]] = results.get(i[2], 0) + 1
+        results[i[3]] = results.get(i[3], 0) + 1
+    for k in sorted(results):
+        print(k, weights[k], results[k] / (test_iterations * 4.0))
+    print(datetime.datetime.now() - start_time)
 
 if __name__ == "__main__":
     main()
