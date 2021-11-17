@@ -4,6 +4,40 @@ import itertools
 import random
 import datetime
 
+points = [1, 2, 3, 4, 5]
+global combinations
+combinations = []
+
+
+def Q_get_combinations(array: list, number_of_items: int, selection: list = []):
+    if number_of_items <= 0:
+        combinations.append([_ for _ in selection])
+        print(f'selection {selection}')
+        return
+
+    for idx in range(len(array) - number_of_items + 1):
+        new_array = array[idx + 1:]
+        Q_get_combinations(array=new_array, number_of_items=number_of_items - 1, selection=selection + [array[idx]])
+
+
+def Q_get_lex_combinations(array: list, number_of_items: int, selection: list = []) -> list:
+    if number_of_items <= 0:
+        combinations.append([_ for _ in selection])
+        return
+
+    for idx in range(len(array)):
+        new_array = array[0:idx] + array[idx + 1:]
+        Q_get_lex_combinations(array=new_array, number_of_items=number_of_items - 1, selection=selection + [array[idx]])
+
+
+def Q_get_lex_combinations_generator(array: list, number_of_items: int, selection: list = []) -> list:
+    if number_of_items <= 0:
+        yield [_ for _ in selection]
+
+    for idx in range(len(array)):
+        new_array = array[0:idx] + array[idx + 1:]
+        Q_get_lex_combinations_generator(array=new_array, number_of_items=number_of_items - 1, selection=selection + [array[idx]])
+
 
 def Q_weighted_choice(list_of_choices: list, number_of_choices: int = 1, replacement: bool = False):
     all_choices = [_ for _ in list_of_choices]
@@ -578,6 +612,11 @@ def main():
     for k in sorted(results):
         print(k, weights[k], results[k] / (test_iterations * 4.0))
     print(datetime.datetime.now() - start_time)
+
+    Q_get_lex_combinations(array=sorted(points), number_of_items=5)
+    print(combinations)
+    print(sum(1 for _ in combinations))
+
 
 if __name__ == "__main__":
     main()
