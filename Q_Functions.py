@@ -4,7 +4,6 @@ import itertools
 import random
 import datetime
 
-points = [1, 2, 3, 4, 5]
 global combinations
 combinations = []
 
@@ -21,22 +20,20 @@ def Q_get_combinations(array: list, number_of_items: int, selection: list = []):
 
 
 def Q_get_lex_combinations(array: list, number_of_items: int, selection: list = []) -> list:
-    if number_of_items <= 0:
-        combinations.append([_ for _ in selection])
+    if number_of_items == 0:
+        combinations.append(selection)
         return
 
     for idx in range(len(array)):
-        new_array = array[0:idx] + array[idx + 1:]
-        Q_get_lex_combinations(array=new_array, number_of_items=number_of_items - 1, selection=selection + [array[idx]])
+        Q_get_lex_combinations(array=array[:idx] + array[idx + 1:], number_of_items=number_of_items - 1, selection=selection + [array[idx]])
 
 
 def Q_get_lex_combinations_generator(array: list, number_of_items: int, selection: list = []) -> list:
-    if number_of_items <= 0:
-        yield [_ for _ in selection]
+    if number_of_items == 0:
+        yield selection
 
     for idx in range(len(array)):
-        new_array = array[0:idx] + array[idx + 1:]
-        Q_get_lex_combinations_generator(array=new_array, number_of_items=number_of_items - 1, selection=selection + [array[idx]])
+        yield from Q_get_lex_combinations_generator(array=array[:idx] + array[idx + 1:], number_of_items=number_of_items - 1, selection=selection + [array[idx]])
 
 
 def Q_weighted_choice(list_of_choices: list, number_of_choices: int = 1, replacement: bool = False):
@@ -65,14 +62,19 @@ def Q_weighted_choice2(list_of_choices: list, number_of_choices: int = 1, replac
     for idx in range(len(all_choices)):
         upto += all_choices[idx][1]
         if upto >= random_weight:
-            if not replacement:
-                item = all_choices.pop(idx)
-            else:
-                item = all_choices[idx]
+            item = all_choices.pop(idx) if not replacement else all_choices[idx]
             results.append(item[0])
             break
     if number_of_choices > 1:
-        results.extend(result for result in Q_weighted_choice2(list_of_choices=all_choices, number_of_choices=number_of_choices - 1, replacement=replacement))
+        results.extend(
+            iter(
+                Q_weighted_choice2(
+                    list_of_choices=all_choices,
+                    number_of_choices=number_of_choices - 1,
+                    replacement=replacement,
+                )
+            )
+        )
 
     return results
 
@@ -83,7 +85,7 @@ def Q_weighted_choice3(list_of_choices: list, list_of_weights: list, number_of_c
     assert len(all_choices) == len(all_weights)
     results = []
     for _ in range(number_of_choices):
-        total_weight = sum(weight for weight in all_weights)
+        total_weight = sum(all_weights)
         random_weight = random.uniform(0, total_weight)
         upto = 0
         for idx in range(len(all_choices)):
@@ -188,7 +190,7 @@ def Q_map(value: float, lower_limit: float, upper_limit: float, scaled_lower_lim
     return output
 
 
-def Q_quantize(value: (float, int), max_value: (float, int), num_thresholds: (float, int), min_value: (float, int) = 0) -> (float, int):
+def Q_quantize(value: float | int, max_value: float | int, num_thresholds: float | int, min_value: float | int = 0) -> float | int:
     # return round(value * thresholds / max_value) * max_value / thresholds
     if type(value) == float or type(num_thresholds) == float or type(min_value) == float or type(max_value) == float:
         return_type = float
@@ -585,7 +587,7 @@ def main():
 
     possibilities = [(0, .35), (1, .15), (2, 0.25), (3, 0.25)]
     results = {}
-    test_iterations = 500_000
+    test_iterations = 50_000
     start_time = datetime.datetime.now()
     for _ in range(test_iterations):
         i = Q_weighted_choice2(possibilities, number_of_choices=4, replacement=True)
@@ -601,7 +603,7 @@ def main():
     possibilities = [0, 1, 2, 3]
     weights = [0.35, 0.15, 0.25, 0.25]
     results = {}
-    test_iterations = 500_000
+    test_iterations = 50_000
     start_time = datetime.datetime.now()
     for _ in range(test_iterations):
         i = Q_weighted_choice3(list_of_choices=possibilities, list_of_weights=weights, number_of_choices=4, replacement=True)
@@ -613,9 +615,30 @@ def main():
         print(k, weights[k], results[k] / (test_iterations * 4.0))
     print(datetime.datetime.now() - start_time)
 
-    Q_get_lex_combinations(array=sorted(points), number_of_items=5)
-    print(combinations)
-    print(sum(1 for _ in combinations))
+    banner = """
+ █████       ██████████ █████ █████      █████████     ███████    ██████   ██████ ███████████  █████ ██████   █████   █████████   ███████████ █████    ███████    ██████   █████  █████████ 
+░░███       ░░███░░░░░█░░███ ░░███      ███░░░░░███  ███░░░░░███ ░░██████ ██████ ░░███░░░░░███░░███ ░░██████ ░░███   ███░░░░░███ ░█░░░███░░░█░░███   ███░░░░░███ ░░██████ ░░███  ███░░░░░███
+ ░███        ░███  █ ░  ░░███ ███      ███     ░░░  ███     ░░███ ░███░█████░███  ░███    ░███ ░███  ░███░███ ░███  ░███    ░███ ░   ░███  ░  ░███  ███     ░░███ ░███░███ ░███ ░███    ░░░ 
+ ░███        ░██████     ░░█████      ░███         ░███      ░███ ░███░░███ ░███  ░██████████  ░███  ░███░░███░███  ░███████████     ░███     ░███ ░███      ░███ ░███░░███░███ ░░█████████ 
+ ░███        ░███░░█      ███░███     ░███         ░███      ░███ ░███ ░░░  ░███  ░███░░░░░███ ░███  ░███ ░░██████  ░███░░░░░███     ░███     ░███ ░███      ░███ ░███ ░░██████  ░░░░░░░░███
+ ░███      █ ░███ ░   █  ███ ░░███    ░░███     ███░░███     ███  ░███      ░███  ░███    ░███ ░███  ░███  ░░█████  ░███    ░███     ░███     ░███ ░░███     ███  ░███  ░░█████  ███    ░███
+ ███████████ ██████████ █████ █████    ░░█████████  ░░░███████░   █████     █████ ███████████  █████ █████  ░░█████ █████   █████    █████    █████ ░░░███████░   █████  ░░█████░░█████████ 
+░░░░░░░░░░░ ░░░░░░░░░░ ░░░░░ ░░░░░      ░░░░░░░░░     ░░░░░░░    ░░░░░     ░░░░░ ░░░░░░░░░░░  ░░░░░ ░░░░░    ░░░░░ ░░░░░   ░░░░░    ░░░░░    ░░░░░    ░░░░░░░    ░░░░░    ░░░░░  ░░░░░░░░░  
+"""
+    print(banner)
+    for i in range(10):
+        combinations.clear()
+        points = [x + 1 for x in range(i + 1)]
+        start_time = datetime.datetime.now()
+        Q_get_lex_combinations(array=sorted(points), number_of_items=len(points))
+        # print(combinations)
+        print(points, f'{sum(1 for _ in combinations):0,}', f'combinations in {datetime.datetime.now() - start_time}.')
+
+    combinations.clear()
+    for i in range(10):
+        points = [x + 1 for x in range(i + 1)]
+        start_time = datetime.datetime.now()
+        print(points, f'{sum(1 for _ in Q_get_lex_combinations_generator(array=sorted(points), number_of_items=len(points))):0,}', f'combinations in {datetime.datetime.now() - start_time}.')
 
 
 if __name__ == "__main__":
