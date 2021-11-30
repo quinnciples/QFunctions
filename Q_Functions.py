@@ -626,7 +626,7 @@ def main():
 ░░░░░░░░░░░ ░░░░░░░░░░ ░░░░░ ░░░░░      ░░░░░░░░░     ░░░░░░░    ░░░░░     ░░░░░ ░░░░░░░░░░░  ░░░░░ ░░░░░    ░░░░░ ░░░░░   ░░░░░    ░░░░░    ░░░░░    ░░░░░░░    ░░░░░    ░░░░░  ░░░░░░░░░  
 """
     print(banner)
-    for i in range(10):
+    for i in range(6):
         combinations.clear()
         points = [x + 1 for x in range(i + 1)]
         start_time = datetime.datetime.now()
@@ -635,7 +635,7 @@ def main():
         print(points, f'{sum(1 for _ in combinations):0,}', f'combinations in {datetime.datetime.now() - start_time}.')
 
     combinations.clear()
-    for i in range(10):
+    for i in range(6):
         points = [x + 1 for x in range(i + 1)]
         start_time = datetime.datetime.now()
         print(points, f'{sum(1 for _ in Q_get_lex_combinations_generator(array=sorted(points), number_of_items=len(points))):0,}', f'combinations in {datetime.datetime.now() - start_time}.')
