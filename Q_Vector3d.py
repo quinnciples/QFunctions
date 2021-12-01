@@ -108,7 +108,8 @@ class Q_Vector3D:
             self.z *= scalar
 
     def reflected(self, other_vector) -> float:
-        return self - 2 * self.dot_product(other_vector=other_vector) * other_vector
+        # Maybe we should always normalize other_vector first?
+        return Q_Vector3D.from_Vector3D(self - (other_vector * 2 * self.dot_product(other_vector=other_vector)))
 
     #######################################
     #
@@ -149,9 +150,9 @@ print(1 ** 2 + 2 ** 2 + 3 ** 2, math.sqrt(1 ** 2 + 2 ** 2 + 3 ** 2))
 print('Mult test')
 print('Scalar mult')
 test_vector = Q_Vector3D(x=1, y=1, z=1)
-print(test_vector, test_vector.length)
+print(test_vector)
 new_vector = test_vector * 2.0
-print(new_vector, new_vector.length)
+print(new_vector)
 print('Vector mult')
 test_vector = Q_Vector3D(x=5, y=4, z=3)
 mult_vector = Q_Vector3D(x=2, y=3, z=4)
@@ -165,3 +166,12 @@ test_vector.limit(10)
 print(f'Limited to 10: {test_vector}')
 test_vector.limit(5)
 print(f'Limited to 5: {test_vector}')
+print('Reflected test')
+test_vector = Q_Vector3D(x=0, y=0, z=2)
+print('Initial vector ', test_vector)
+surface_vector = Q_Vector3D(x=0, y=0, z=-1).normalized()
+print('Surface vector ', surface_vector)
+reflected_vector = test_vector.reflected(surface_vector)
+print('Reflected vector ', reflected_vector)
+
+# https://github.com/OmarAflak/RayTracer-CPP/blob/master/main.cpp

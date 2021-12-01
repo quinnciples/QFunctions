@@ -1,3 +1,5 @@
+// https://github.com/OmarAflak/RayTracer-CPP/blob/master/main.cpp
+
 #ifndef VECT3_H
 #define VECT3_H
 
