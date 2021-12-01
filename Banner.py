@@ -48,7 +48,7 @@ for letter in BANNER_LETTERS:
     BANNER_LETTERS[letter] = [_ for _ in new_letter]
 
 BANNER_LETTERS[' '] = ['      '] * 9
-message = 'abc def 123'
+message = 'Q VECTOR3D'
 message = message.upper()
 print(message)
 

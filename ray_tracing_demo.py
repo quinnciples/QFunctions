@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from Q_Vector3d import Q_Vector3D
+from Q_Functions import Q_Vector3D
 
 
 def normalize(vector):
