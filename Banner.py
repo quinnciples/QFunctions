@@ -47,7 +47,7 @@ for letter in BANNER_LETTERS:
     new_letter = [x[:max_length + 1] for x in this_letter]
     BANNER_LETTERS[letter] = [_ for _ in new_letter]
 
-BANNER_LETTERS[' '] = ['       '] * 9
+BANNER_LETTERS[' '] = ['      '] * 9
 message = 'abc def 123'
 message = message.upper()
 print(message)

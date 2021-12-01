@@ -1,0 +1,87 @@
+import math
+import random
+from Q_Functions import Q_map
+
+
+class Q_Vector2D:
+    def __init__(self, angle: float, magnitude: float):
+        self.angle = angle
+        self.magnitude = magnitude
+
+    def __str__(self):
+        return f'Q_Vector2D(angle={self.angle}, magnitude={self.magnitude}, x={self.x}, y={self.y})'
+
+    def __repr__(self):
+        return f'Q_Vector2D(angle={self.angle}, magnitude={self.magnitude})'
+
+    def __add__(self, other):
+        if self.magnitude == 0 and other.magnitude == 0:
+            return self
+        if self.magnitude == 0:
+            return other
+        if other.magnitude == 0:
+            return self
+        y_component = (math.sin(self.angle) * self.magnitude) + (math.sin(other.angle) * other.magnitude)
+        x_component = (math.cos(self.angle) * self.magnitude) + (math.cos(other.angle) * other.magnitude)
+        if x_component == 0:
+            angle = math.pi / 2.0 if y_component >= 0 else 3 * math.pi / 2.0
+        else:
+            if x_component > 0:
+                angle = math.atan(y_component / x_component)
+            else:
+                angle = math.pi + math.atan(y_component / x_component)
+        magnitude = math.sqrt((y_component ** 2) + (x_component ** 2))
+        return Q_Vector2D(angle, magnitude)
+
+    @property
+    def x(self):
+        return math.cos(self.angle) * self.magnitude
+
+    @property
+    def y(self):
+        return math.sin(self.angle) * self.magnitude
+
+    @property
+    def degrees(self):
+        return Q_map(self.angle, 0, math.pi * 2.0, 0, 360)
+
+    def limit(self, maximum):
+        self.magnitude = min(self.magnitude, maximum)
+
+    @staticmethod
+    def random():
+        angle = random.random() * math.pi * 2.0
+        magnitude = random.random()
+        return Q_Vector2D(angle=angle, magnitude=magnitude)
+
+    @staticmethod
+    def fromXY(x: float = 0, y: float = 0):
+        if x == 0:
+            angle = math.pi / 2.0 if y >= 0 else 3 * math.pi / 2.0
+        else:
+            if x > 0:
+                angle = math.atan(y / x)
+            else:
+                angle = math.pi + math.atan(y / x)
+        magnitude = math.sqrt((y ** 2) + (x ** 2))
+        return Q_Vector2D(angle, magnitude)
+
+
+class Q_Vector3D:
+    def __init__(self, x: float = 0, y: float = 0, z: float = 0):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    @staticmethod
+    def from_Vector3D(other_vector):
+        return Q_Vector3D(other_vector.x, other_vector.y, other_vector.z)
+
+    def dot_product(self, other_vector) -> float:
+        return self.x * other_vector.x + self.y * other_vector.y + self.z * other_vector.z
+
+    def element_wise_product(self, other_vector):
+        return Q_Vector3D(x=self.x * other_vector.x, y=self.y * other_vector.y, z=self.z * other_vector.z)
+
+    def cross_product(self, other_vector):
+        return Q_Vector3D(x=self.y * other_vector.z - self.z * other_vector.y, y=self.z * other_vector.x - self.x * other_vector.z, z=self.x * other_vector.y - self.y * other_vector.x)

@@ -152,6 +152,18 @@ class Q_Vector2D:
         magnitude = random.random()
         return Q_Vector2D(angle=angle, magnitude=magnitude)
 
+    @staticmethod
+    def fromXY(x: float = 0, y: float = 0):
+        if x == 0:
+            angle = math.pi / 2.0 if y >= 0 else 3 * math.pi / 2.0
+        else:
+            if x > 0:
+                angle = math.atan(y / x)
+            else:
+                angle = math.pi + math.atan(y / x)
+        magnitude = math.sqrt((y ** 2) + (x ** 2))
+        return Q_Vector2D(angle, magnitude)
+
 
 class Q_MinMaxScaler:
     def __init__(self, items):
@@ -568,77 +580,81 @@ def main():
     print(v1, v2)
     v3 = v1 + v2
     print(v3, v3.x, v3.y, v3.degrees)
-    # print(math.degrees(add_vectors(v1, v2)[0]))
+    v4 = Q_Vector2D.fromXY(x=1, y=1)
+    print(v4)
+    v5 = Q_Vector2D.fromXY(x=1, y=0)
+    v6 = Q_Vector2D.fromXY(x=0, y=1)
+    print(v5, v6, '+', v5 + v6)
 
-    possibilities = [(0, .35), (1, .15), (2, 0.25), (3, 0.25)]
-    results = {}
-    test_iterations = 500_000
-    start_time = datetime.datetime.now()
-    for _ in range(test_iterations):
-        i = Q_weighted_choice(possibilities, number_of_choices=4, replacement=True)
-        # print(i)
-        results[i[0]] = results.get(i[0], 0) + 1
-        results[i[1]] = results.get(i[1], 0) + 1
-        results[i[2]] = results.get(i[2], 0) + 1
-        results[i[3]] = results.get(i[3], 0) + 1
-    for k in sorted(results):
-        print(k, possibilities[k][1], results[k] / (test_iterations * 4.0))
-    print(datetime.datetime.now() - start_time)
+#     possibilities = [(0, .35), (1, .15), (2, 0.25), (3, 0.25)]
+#     results = {}
+#     test_iterations = 500_000
+#     start_time = datetime.datetime.now()
+#     for _ in range(test_iterations):
+#         i = Q_weighted_choice(possibilities, number_of_choices=4, replacement=True)
+#         # print(i)
+#         results[i[0]] = results.get(i[0], 0) + 1
+#         results[i[1]] = results.get(i[1], 0) + 1
+#         results[i[2]] = results.get(i[2], 0) + 1
+#         results[i[3]] = results.get(i[3], 0) + 1
+#     for k in sorted(results):
+#         print(k, possibilities[k][1], results[k] / (test_iterations * 4.0))
+#     print(datetime.datetime.now() - start_time)
 
-    possibilities = [(0, .35), (1, .15), (2, 0.25), (3, 0.25)]
-    results = {}
-    test_iterations = 50_000
-    start_time = datetime.datetime.now()
-    for _ in range(test_iterations):
-        i = Q_weighted_choice2(possibilities, number_of_choices=4, replacement=True)
-        # print(i)
-        results[i[0]] = results.get(i[0], 0) + 1
-        results[i[1]] = results.get(i[1], 0) + 1
-        results[i[2]] = results.get(i[2], 0) + 1
-        results[i[3]] = results.get(i[3], 0) + 1
-    for k in sorted(results):
-        print(k, possibilities[k][1], results[k] / (test_iterations * 4.0))
-    print(datetime.datetime.now() - start_time)
+#     possibilities = [(0, .35), (1, .15), (2, 0.25), (3, 0.25)]
+#     results = {}
+#     test_iterations = 50_000
+#     start_time = datetime.datetime.now()
+#     for _ in range(test_iterations):
+#         i = Q_weighted_choice2(possibilities, number_of_choices=4, replacement=True)
+#         # print(i)
+#         results[i[0]] = results.get(i[0], 0) + 1
+#         results[i[1]] = results.get(i[1], 0) + 1
+#         results[i[2]] = results.get(i[2], 0) + 1
+#         results[i[3]] = results.get(i[3], 0) + 1
+#     for k in sorted(results):
+#         print(k, possibilities[k][1], results[k] / (test_iterations * 4.0))
+#     print(datetime.datetime.now() - start_time)
 
-    possibilities = [0, 1, 2, 3]
-    weights = [0.35, 0.15, 0.25, 0.25]
-    results = {}
-    test_iterations = 50_000
-    start_time = datetime.datetime.now()
-    for _ in range(test_iterations):
-        i = Q_weighted_choice3(list_of_choices=possibilities, list_of_weights=weights, number_of_choices=4, replacement=True)
-        results[i[0]] = results.get(i[0], 0) + 1
-        results[i[1]] = results.get(i[1], 0) + 1
-        results[i[2]] = results.get(i[2], 0) + 1
-        results[i[3]] = results.get(i[3], 0) + 1
-    for k in sorted(results):
-        print(k, weights[k], results[k] / (test_iterations * 4.0))
-    print(datetime.datetime.now() - start_time)
+#     possibilities = [0, 1, 2, 3]
+#     weights = [0.35, 0.15, 0.25, 0.25]
+#     results = {}
+#     test_iterations = 50_000
+#     start_time = datetime.datetime.now()
+#     for _ in range(test_iterations):
+#         i = Q_weighted_choice3(list_of_choices=possibilities, list_of_weights=weights, number_of_choices=4, replacement=True)
+#         results[i[0]] = results.get(i[0], 0) + 1
+#         results[i[1]] = results.get(i[1], 0) + 1
+#         results[i[2]] = results.get(i[2], 0) + 1
+#         results[i[3]] = results.get(i[3], 0) + 1
+#     for k in sorted(results):
+#         print(k, weights[k], results[k] / (test_iterations * 4.0))
+#     print(datetime.datetime.now() - start_time)
 
-    banner = """
- █████       ██████████ █████ █████      █████████     ███████    ██████   ██████ ███████████  █████ ██████   █████   █████████   ███████████ █████    ███████    ██████   █████  █████████ 
-░░███       ░░███░░░░░█░░███ ░░███      ███░░░░░███  ███░░░░░███ ░░██████ ██████ ░░███░░░░░███░░███ ░░██████ ░░███   ███░░░░░███ ░█░░░███░░░█░░███   ███░░░░░███ ░░██████ ░░███  ███░░░░░███
- ░███        ░███  █ ░  ░░███ ███      ███     ░░░  ███     ░░███ ░███░█████░███  ░███    ░███ ░███  ░███░███ ░███  ░███    ░███ ░   ░███  ░  ░███  ███     ░░███ ░███░███ ░███ ░███    ░░░ 
- ░███        ░██████     ░░█████      ░███         ░███      ░███ ░███░░███ ░███  ░██████████  ░███  ░███░░███░███  ░███████████     ░███     ░███ ░███      ░███ ░███░░███░███ ░░█████████ 
- ░███        ░███░░█      ███░███     ░███         ░███      ░███ ░███ ░░░  ░███  ░███░░░░░███ ░███  ░███ ░░██████  ░███░░░░░███     ░███     ░███ ░███      ░███ ░███ ░░██████  ░░░░░░░░███
- ░███      █ ░███ ░   █  ███ ░░███    ░░███     ███░░███     ███  ░███      ░███  ░███    ░███ ░███  ░███  ░░█████  ░███    ░███     ░███     ░███ ░░███     ███  ░███  ░░█████  ███    ░███
- ███████████ ██████████ █████ █████    ░░█████████  ░░░███████░   █████     █████ ███████████  █████ █████  ░░█████ █████   █████    █████    █████ ░░░███████░   █████  ░░█████░░█████████ 
-░░░░░░░░░░░ ░░░░░░░░░░ ░░░░░ ░░░░░      ░░░░░░░░░     ░░░░░░░    ░░░░░     ░░░░░ ░░░░░░░░░░░  ░░░░░ ░░░░░    ░░░░░ ░░░░░   ░░░░░    ░░░░░    ░░░░░    ░░░░░░░    ░░░░░    ░░░░░  ░░░░░░░░░  
-"""
-    print(banner)
-    for i in range(6):
-        combinations.clear()
-        points = [x + 1 for x in range(i + 1)]
-        start_time = datetime.datetime.now()
-        Q_get_lex_combinations(array=sorted(points), number_of_items=len(points))
-        # print(combinations)
-        print(points, f'{sum(1 for _ in combinations):0,}', f'combinations in {datetime.datetime.now() - start_time}.')
+#     banner = """
+#  █████       ██████████ █████ █████      █████████     ███████    ██████   ██████ ███████████  █████ ██████   █████   █████████   ███████████ █████    ███████    ██████   █████  █████████ 
+# ░░███       ░░███░░░░░█░░███ ░░███      ███░░░░░███  ███░░░░░███ ░░██████ ██████ ░░███░░░░░███░░███ ░░██████ ░░███   ███░░░░░███ ░█░░░███░░░█░░███   ███░░░░░███ ░░██████ ░░███  ███░░░░░███
+#  ░███        ░███  █ ░  ░░███ ███      ███     ░░░  ███     ░░███ ░███░█████░███  ░███    ░███ ░███  ░███░███ ░███  ░███    ░███ ░   ░███  ░  ░███  ███     ░░███ ░███░███ ░███ ░███    ░░░ 
+#  ░███        ░██████     ░░█████      ░███         ░███      ░███ ░███░░███ ░███  ░██████████  ░███  ░███░░███░███  ░███████████     ░███     ░███ ░███      ░███ ░███░░███░███ ░░█████████ 
+#  ░███        ░███░░█      ███░███     ░███         ░███      ░███ ░███ ░░░  ░███  ░███░░░░░███ ░███  ░███ ░░██████  ░███░░░░░███     ░███     ░███ ░███      ░███ ░███ ░░██████  ░░░░░░░░███
+#  ░███      █ ░███ ░   █  ███ ░░███    ░░███     ███░░███     ███  ░███      ░███  ░███    ░███ ░███  ░███  ░░█████  ░███    ░███     ░███     ░███ ░░███     ███  ░███  ░░█████  ███    ░███
+#  ███████████ ██████████ █████ █████    ░░█████████  ░░░███████░   █████     █████ ███████████  █████ █████  ░░█████ █████   █████    █████    █████ ░░░███████░   █████  ░░█████░░█████████ 
+# ░░░░░░░░░░░ ░░░░░░░░░░ ░░░░░ ░░░░░      ░░░░░░░░░     ░░░░░░░    ░░░░░     ░░░░░ ░░░░░░░░░░░  ░░░░░ ░░░░░    ░░░░░ ░░░░░   ░░░░░    ░░░░░    ░░░░░    ░░░░░░░    ░░░░░    ░░░░░  ░░░░░░░░░  
+# """
+#     print(banner)
+#     for i in range(6):
+#         combinations.clear()
+#         points = [x + 1 for x in range(i + 1)]
+#         start_time = datetime.datetime.now()
+#         Q_get_lex_combinations(array=sorted(points), number_of_items=len(points))
+#         # print(combinations)
+#         print(points, f'{sum(1 for _ in combinations):0,}', f'combinations in {datetime.datetime.now() - start_time}.')
 
-    combinations.clear()
-    for i in range(6):
-        points = [x + 1 for x in range(i + 1)]
-        start_time = datetime.datetime.now()
-        print(points, f'{sum(1 for _ in Q_get_lex_combinations_generator(array=sorted(points), number_of_items=len(points))):0,}', f'combinations in {datetime.datetime.now() - start_time}.')
+#     combinations.clear()
+#     for i in range(6):
+#         points = [x + 1 for x in range(i + 1)]
+#         start_time = datetime.datetime.now()
+#         print(points, f'{sum(1 for _ in Q_get_lex_combinations_generator(array=sorted(points), number_of_items=len(points))):0,}', f'combinations in {datetime.datetime.now() - start_time}.')
 
 
 if __name__ == "__main__":
