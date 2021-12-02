@@ -281,8 +281,9 @@ def Q_map(value: float, lower_limit: float, upper_limit: float, scaled_lower_lim
     """
     temp_value = value - lower_limit
     temp_scale = temp_value / (upper_limit - lower_limit)
-    output = ((scaled_upper_limit - scaled_lower_limit) * temp_scale) + scaled_lower_limit
-    return output
+    return (
+        (scaled_upper_limit - scaled_lower_limit) * temp_scale
+    ) + scaled_lower_limit
 
 
 def Q_quantize(value: float | int, max_value: float | int, num_thresholds: float | int, min_value: float | int = 0) -> float | int:
