@@ -167,9 +167,9 @@ class Q_Vector2D:
 
 class Q_Vector3D:
     def __init__(self, x: float = 0, y: float = 0, z: float = 0):
-        self.x = x
-        self.y = y
-        self.z = z
+        self.x = float(x)
+        self.y = float(y)
+        self.z = float(z)
 
     @staticmethod
     def from_Vector3D(other_vector):
@@ -229,6 +229,11 @@ class Q_Vector3D:
         else:
             print(type(self), type(other_object))
             raise('Unknown Type')
+
+    def __eq__(self, other_vector):
+        if type(other_vector) != Q_Vector3D:
+            raise Exception('Other object must be Q_Vector3D.')
+        return (self.x == other_vector.x) and (self.y == other_vector.y) and (self.z == other_vector.z)
 
     #######################################
     #
@@ -774,6 +779,13 @@ def main():
     print('Surface vector ', surface_vector)
     reflected_vector = test_vector.reflected(surface_vector)
     print('Reflected vector ', reflected_vector)
+    print('Cross Product Test')
+    first_vector = Q_Vector3D(x=1, y=2, z=3)
+    second_vector = Q_Vector3D(x=4, y=5, z=6)
+    expected_vector = Q_Vector3D(x=-3.0, y=6.0, z=-3.0)
+    cross_product = first_vector.cross_product(other_vector=second_vector)
+    print(f'Expecting (-3, 6, -3) -- {cross_product}')
+    print(f'Testing cross_product == expected_vector -- {cross_product == expected_vector}')
 
     # https://github.com/OmarAflak/RayTracer-CPP/blob/master/main.cpp
 

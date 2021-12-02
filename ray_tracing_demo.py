@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from Q_Functions import Q_Vector3D
+import pyjion
+pyjion.enable()
 
 
 def normalize(vector):
