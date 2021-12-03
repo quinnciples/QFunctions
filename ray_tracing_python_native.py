@@ -1,18 +1,18 @@
 import math
-from Q_Functions import Q_Vector3D, Q_map
+from Q_Functions import Q_Vector3d, Q_map
 import numpy as np
 import os
 import matplotlib.pyplot as plt
 
 
 class Ray:
-    def __init__(self, origin: Q_Vector3D, direction: Q_Vector3D):
+    def __init__(self, origin: Q_Vector3d, direction: Q_Vector3d):
         self.origin = origin
         self.direction = direction
 
 
 class Primitive:
-    def __init__(self, center: Q_Vector3D):
+    def __init__(self, center: Q_Vector3d):
         self.center = center
 
 
@@ -22,7 +22,7 @@ class SpherePrimitive(Primitive):
     c = np.linalg.norm(ray_origin - center) ** 2 - radius ** 2
     c = ((ray.origin - self.center).length ** 2) - (self.radius ** 2)
     """
-    def __init__(self, center: Q_Vector3D, radius: float):
+    def __init__(self, center: Q_Vector3d, radius: float):
         self.center = center
         self.radius = float(radius)
 
@@ -49,12 +49,12 @@ WIDTH = 640
 HEIGHT = 480
 SCREEN_RATIO = float(WIDTH) / float(HEIGHT)
 SCREEN_DIMS = {'left': -1, 'top': 1 / SCREEN_RATIO, 'right': 1, 'bottom': -1 / SCREEN_RATIO}
-camera_position = Q_Vector3D(0, 0, -1.75)
+CAMERA = Q_Vector3d(0, 0, -1.75)
 
 scene = [
-    {'id': 1, 'item': SpherePrimitive(center=Q_Vector3D(x=2.5, y=0, z=10), radius=1.5)},
-    {'id': 2, 'item': SpherePrimitive(center=Q_Vector3D(x=-4.5, y=-2.5, z=25.0), radius=1.0)},
-    {'id': 3, 'item': SpherePrimitive(center=Q_Vector3D(x=-0, y=-1000, z=0), radius=990.0)},
+    {'id': 1, 'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=10), radius=1.5)},
+    {'id': 2, 'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=-2.5, z=25.0), radius=1.0)},
+    {'id': 3, 'item': SpherePrimitive(center=Q_Vector3d(x=-0, y=-1000, z=0), radius=990.0)},
 ]
 
 os.system('cls')
@@ -66,9 +66,9 @@ for y in range(HEIGHT):
     yy = Q_map(value=-y, lower_limit=-(HEIGHT - 1), upper_limit=0, scaled_lower_limit=SCREEN_DIMS['bottom'], scaled_upper_limit=SCREEN_DIMS['top'])  # -((2 * y / float(HEIGHT - 1)) - 1)  # Q_map(value=-y, lower_limit=-(HEIGHT - 1), upper_limit=0, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (-y + (HEIGHT / 2.0)) / HEIGHT  # Need to make sure I did this right
     for x in range(WIDTH):
         xx = Q_map(value=x, lower_limit=0, upper_limit=WIDTH - 1, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (2 * x / float(WIDTH - 1)) - 1  # Q_map(value=x, lower_limit=0, upper_limit=WIDTH - 1, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (x - (WIDTH / 2.0)) / WIDTH
-        # screen is on origin
-        pixel = Q_Vector3D(xx, yy, 0)
-        origin = camera_position
+
+        pixel = Q_Vector3d(xx, yy, 0)
+        origin = CAMERA
         direction = (pixel - origin).normalized()
         ray = Ray(origin=origin, direction=direction)
 
@@ -83,6 +83,7 @@ for y in range(HEIGHT):
 plt.imsave('image.png', image)
 print()
 
+# Test
 # ray_origin = np.array([0, 0, 0])
 # vOrigin = Q_Vector3D(x=0, y=0, z=0)
 # radius = 1.0
