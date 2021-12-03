@@ -16,7 +16,7 @@ class Primitive:
         self.center = center
 
 
-class CirclePrimitive(Primitive):
+class SpherePrimitive(Primitive):
     """
     Use this as a test:
     c = np.linalg.norm(ray_origin - center) ** 2 - radius ** 2
@@ -52,9 +52,9 @@ SCREEN_DIMS = {'left': -1, 'top': 1 / SCREEN_RATIO, 'right': 1, 'bottom': -1 / S
 camera_position = Q_Vector3D(0, 0, -1.75)
 
 scene = [
-    {'id': 1, 'item': CirclePrimitive(center=Q_Vector3D(x=2.5, y=0, z=10), radius=1.5)},
-    {'id': 2, 'item': CirclePrimitive(center=Q_Vector3D(x=-4.5, y=-2.5, z=25.0), radius=1.0)},
-    {'id': 3, 'item': CirclePrimitive(center=Q_Vector3D(x=-0, y=-1000, z=0), radius=990.0)},
+    {'id': 1, 'item': SpherePrimitive(center=Q_Vector3D(x=2.5, y=0, z=10), radius=1.5)},
+    {'id': 2, 'item': SpherePrimitive(center=Q_Vector3D(x=-4.5, y=-2.5, z=25.0), radius=1.0)},
+    {'id': 3, 'item': SpherePrimitive(center=Q_Vector3D(x=-0, y=-1000, z=0), radius=990.0)},
 ]
 
 os.system('cls')
