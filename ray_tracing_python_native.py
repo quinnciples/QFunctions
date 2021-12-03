@@ -11,6 +11,25 @@ class Ray:
         self.direction = direction
 
 
+class Scene:
+    def __init__(self, objects: list = [], lights: list = []):
+        self.objects = objects
+        self.lights = lights
+
+    def nearest_intersection(self, ray: Ray):
+        min_distance = math.inf
+        idx = None
+        obj = None
+        for index, object in enumerate(self.objects):
+            intersection = object['item'].intersect(ray=ray)
+            if intersection and intersection < min_distance:
+                min_distance = intersection
+                idx = index
+                obj = object
+
+        return idx, obj, min_distance
+
+
 class Primitive:
     def __init__(self, center: Q_Vector3d):
         self.center = center
@@ -51,11 +70,13 @@ SCREEN_RATIO = float(WIDTH) / float(HEIGHT)
 SCREEN_DIMS = {'left': -1, 'top': 1 / SCREEN_RATIO, 'right': 1, 'bottom': -1 / SCREEN_RATIO}
 CAMERA = Q_Vector3d(0, 0, -1.75)
 
-scene = [
-    {'id': 1, 'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=10), radius=1.5)},
-    {'id': 2, 'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=-2.5, z=25.0), radius=1.0)},
-    {'id': 3, 'item': SpherePrimitive(center=Q_Vector3d(x=-0, y=-1000, z=0), radius=990.0)},
+objects = [
+    {'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=10), radius=1.5), 'color': (1, 0, 1)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=-2.5, z=25.0), radius=1.0), 'color': (0, 1, 1)},
+    # {'id': 3, 'item': SpherePrimitive(center=Q_Vector3d(x=-0, y=-1000, z=0), radius=990.0)},
 ]
+
+scene = Scene(objects=objects)
 
 os.system('cls')
 print()
@@ -66,20 +87,14 @@ for y in range(HEIGHT):
     yy = Q_map(value=-y, lower_limit=-(HEIGHT - 1), upper_limit=0, scaled_lower_limit=SCREEN_DIMS['bottom'], scaled_upper_limit=SCREEN_DIMS['top'])  # -((2 * y / float(HEIGHT - 1)) - 1)  # Q_map(value=-y, lower_limit=-(HEIGHT - 1), upper_limit=0, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (-y + (HEIGHT / 2.0)) / HEIGHT  # Need to make sure I did this right
     for x in range(WIDTH):
         xx = Q_map(value=x, lower_limit=0, upper_limit=WIDTH - 1, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (2 * x / float(WIDTH - 1)) - 1  # Q_map(value=x, lower_limit=0, upper_limit=WIDTH - 1, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (x - (WIDTH / 2.0)) / WIDTH
-
         pixel = Q_Vector3d(xx, yy, 0)
+
         origin = CAMERA
         direction = (pixel - origin).normalized()
         ray = Ray(origin=origin, direction=direction)
 
-        for object in scene:
-            intersection = object['item'].intersect(ray=ray)
-            if intersection:
-                image[y, x] = (1, 1, 1)
-                break
-        else:
-            image[y, x] = (0, 0, 0)
-
+        _, object, intersection_distance = scene.nearest_intersection(ray=ray)
+        image[y, x] = object['color'] if object else (0, 0, 0)
 plt.imsave('image.png', image)
 print()
 
