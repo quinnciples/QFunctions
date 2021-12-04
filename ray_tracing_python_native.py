@@ -27,7 +27,7 @@ class Scene:
 
         return obj, min_distance
 
-    def render(self, camera_position: Q_Vector3d, width: int = 64, height: int = 64):
+    def render(self, camera_position: Q_Vector3d, width: int = 64, height: int = 64, max_depth: int = 1):
         image = np.zeros((height, width, 3))
         SCREEN_RATIO = float(width) / float(height)
         SCREEN_DIMS = {'left': -1, 'top': 1 / SCREEN_RATIO, 'right': 1, 'bottom': -1 / SCREEN_RATIO}
@@ -39,10 +39,13 @@ class Scene:
                 xx = Q_map(value=x, lower_limit=0, upper_limit=width - 1, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (2 * x / float(WIDTH - 1)) - 1  # Q_map(value=x, lower_limit=0, upper_limit=WIDTH - 1, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (x - (WIDTH / 2.0)) / WIDTH
                 pixel = Q_Vector3d(xx, yy, 0)
 
+                # Initial setup
                 origin = camera_position
                 direction = (pixel - origin).normalized()
+                color_value = Q_Vector3d(0, 0, 0)
                 ray = Ray(origin=origin, direction=direction)
 
+                reflection = 1
                 nearest_object, distance_to_object = scene.nearest_intersection(ray=ray)
 
                 if nearest_object is None:
@@ -63,7 +66,6 @@ class Scene:
                     continue
 
                 # Lighting
-                color_value = Q_Vector3d(0, 0, 0)
 
                 # Ambient lighting
                 color_value += nearest_object['item'].ambient * self.lights[0]['color']
@@ -77,18 +79,27 @@ class Scene:
                 H = (direction_from_intersection_to_light + intersection_to_camera).normalized()
                 color_value += nearest_object['item'].specular * self.lights[0]['color'] * (normal_to_surface.dot_product(H)) ** (100 / 4)  # nearest_object['shininess']
 
+                # Reflection
+                color_value *= reflection
+
                 image[y, x] = color_value.clamp(0, 1).to_tuple()  # nearest_object['color'] if nearest_object else (0, 0, 0)
+
+                # Handle reflection and continue
+                reflection *= nearest_object['item'].reflection
+                direction = direction.reflected(other_vector=normal_to_surface)
 
         plt.imsave('image.png', image)
         print()
 
 
 class Primitive:
-    def __init__(self, center: Q_Vector3d, ambient: Q_Vector3d, diffuse: Q_Vector3d, specular: Q_Vector3d):
+    def __init__(self, center: Q_Vector3d, ambient: Q_Vector3d, diffuse: Q_Vector3d, specular: Q_Vector3d, shininess: float, reflection: float):
         self.position = center
         self.ambient = ambient
         self.diffuse = diffuse
         self.specular = specular
+        self.shininess = shininess
+        self.reflection = reflection
 
 
 class SpherePrimitive(Primitive):
@@ -97,9 +108,9 @@ class SpherePrimitive(Primitive):
     c = np.linalg.norm(ray_origin - center) ** 2 - radius ** 2
     c = ((ray.origin - self.center).length ** 2) - (self.radius ** 2)
     """
-    def __init__(self, center: Q_Vector3d, ambient: Q_Vector3d, diffuse: Q_Vector3d, specular: Q_Vector3d, radius: float):
+    def __init__(self, center: Q_Vector3d, ambient: Q_Vector3d, diffuse: Q_Vector3d, specular: Q_Vector3d, shininess: float, reflection: float, radius: float):
         # self.center = center
-        Primitive.__init__(self, center=center, ambient=ambient, diffuse=diffuse, specular=specular)
+        Primitive.__init__(self, center=center, ambient=ambient, diffuse=diffuse, specular=specular, shininess=shininess, reflection=reflection)
         self.radius = float(radius)
 
     def intersect(self, ray: Ray):
@@ -124,11 +135,12 @@ class SpherePrimitive(Primitive):
 WIDTH = 640
 HEIGHT = 480
 CAMERA = Q_Vector3d(0, 0, -1.75)
+MAX_DEPTH = 1
 
 objects = [
-    {'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=15), ambient=Q_Vector3d(0.1, 0, 0.1), diffuse=Q_Vector3d(0.7, 0, 0.7), specular=Q_Vector3d(1.0, 1.0, 1.0), radius=3)},
-    {'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=0, z=15), ambient=Q_Vector3d(0, 0.1, 0.1), diffuse=Q_Vector3d(0, 0.7, 0.7), specular=Q_Vector3d(1.0, 1.0, 1.0), radius=2.0)},
-    {'item': SpherePrimitive(center=Q_Vector3d(x=0, y=-1000, z=15), ambient=Q_Vector3d(0.1, 0.1, 0.1), diffuse=Q_Vector3d(0.7, 0.7, 0.7), specular=Q_Vector3d(1.0, 1.0, 1.0), radius=990.0)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=15), ambient=Q_Vector3d(0.1, 0, 0.1), diffuse=Q_Vector3d(0.7, 0, 0.7), specular=Q_Vector3d(1.0, 1.0, 1.0), shininess=100, reflection=0.5, radius=3)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=0, z=15), ambient=Q_Vector3d(0, 0.1, 0.1), diffuse=Q_Vector3d(0, 0.7, 0.7), specular=Q_Vector3d(1.0, 1.0, 1.0), shininess=100, reflection=0.5, radius=2.0)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=0, y=-1000, z=15), ambient=Q_Vector3d(0.1, 0.1, 0.1), diffuse=Q_Vector3d(0.7, 0.7, 0.7), specular=Q_Vector3d(1.0, 1.0, 1.0), shininess=100, reflection=0.5, radius=990.0)},
 ]
 
 lights = [
@@ -140,7 +152,7 @@ scene = Scene(objects=objects, lights=lights)
 os.system('cls')
 print()
 
-scene.render(camera_position=CAMERA, width=WIDTH, height=HEIGHT)
+scene.render(camera_position=CAMERA, width=WIDTH, height=HEIGHT, max_depth=MAX_DEPTH)
 
 # Test
 # ray_origin = np.array([0, 0, 0])
