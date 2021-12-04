@@ -18,7 +18,7 @@ def sphere_intersect(center, radius, ray_origin, ray_direction):
     c = np.linalg.norm(ray_origin - center) ** 2 - radius ** 2
     delta = b ** 2 - 4 * c
     if delta > 0:
-        print(f'{ray_origin} -- {center} -- {radius} -- {np.linalg.norm(ray_origin - center)}')
+        # print(f'{ray_origin} -- {center} -- {radius} -- {np.linalg.norm(ray_origin - center)}')
         t1 = (-b + np.sqrt(delta)) / 2
         t2 = (-b - np.sqrt(delta)) / 2
         if t1 > 0 and t2 > 0:
@@ -37,8 +37,8 @@ def nearest_intersected_object(objects, ray_origin, ray_direction):
     return nearest_object, min_distance
 
 
-width = 64
-height = 48
+width = 640
+height = 480
 
 max_depth = 3
 

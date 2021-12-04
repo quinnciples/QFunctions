@@ -8,6 +8,15 @@ global combinations
 combinations = []
 
 
+def Q_clip(value: float, minimum_limit: float, maximum_limit: float):
+
+    if value < minimum_limit:
+        return minimum_limit
+    if value > maximum_limit:
+        return maximum_limit
+    return value
+
+
 def Q_get_combinations(array: list, number_of_items: int, selection: list = []):
     if number_of_items <= 0:
         combinations.append([_ for _ in selection])

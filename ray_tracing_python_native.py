@@ -29,6 +29,27 @@ class Scene:
 
         return idx, obj, min_distance
 
+    def render(self, camera_position: Q_Vector3d, width: int = 64, height: int = 64):
+        image = np.zeros((height, width, 3))
+        SCREEN_RATIO = float(width) / float(height)
+        SCREEN_DIMS = {'left': -1, 'top': 1 / SCREEN_RATIO, 'right': 1, 'bottom': -1 / SCREEN_RATIO}
+
+        for y in range(height):
+            print(f'\r{y + 1}/{height}', end='')
+            yy = Q_map(value=-y, lower_limit=-(height - 1), upper_limit=0, scaled_lower_limit=SCREEN_DIMS['bottom'], scaled_upper_limit=SCREEN_DIMS['top'])  # -((2 * y / float(HEIGHT - 1)) - 1)  # Q_map(value=-y, lower_limit=-(HEIGHT - 1), upper_limit=0, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (-y + (HEIGHT / 2.0)) / HEIGHT  # Need to make sure I did this right
+            for x in range(width):
+                xx = Q_map(value=x, lower_limit=0, upper_limit=width - 1, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (2 * x / float(WIDTH - 1)) - 1  # Q_map(value=x, lower_limit=0, upper_limit=WIDTH - 1, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (x - (WIDTH / 2.0)) / WIDTH
+                pixel = Q_Vector3d(xx, yy, 0)
+
+                origin = camera_position
+                direction = (pixel - origin).normalized()
+                ray = Ray(origin=origin, direction=direction)
+
+                _, object, intersection_distance = scene.nearest_intersection(ray=ray)
+                image[y, x] = object['color'] if object else (0, 0, 0)
+        plt.imsave('image.png', image)
+        print()
+
 
 class Primitive:
     def __init__(self, center: Q_Vector3d):
@@ -66,37 +87,24 @@ class SpherePrimitive(Primitive):
 
 WIDTH = 640
 HEIGHT = 480
-SCREEN_RATIO = float(WIDTH) / float(HEIGHT)
-SCREEN_DIMS = {'left': -1, 'top': 1 / SCREEN_RATIO, 'right': 1, 'bottom': -1 / SCREEN_RATIO}
 CAMERA = Q_Vector3d(0, 0, -1.75)
 
 objects = [
     {'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=10), radius=1.5), 'color': (1, 0, 1)},
-    {'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=-2.5, z=25.0), radius=1.0), 'color': (0, 1, 1)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=-2, z=25.0), radius=1.0), 'color': (0, 1, 1)},
     # {'id': 3, 'item': SpherePrimitive(center=Q_Vector3d(x=-0, y=-1000, z=0), radius=990.0)},
 ]
 
-scene = Scene(objects=objects)
+lights = [
+    {'location': Q_Vector3d(0, 10, 3), 'color': (1, 1, 1)}
+]
+
+scene = Scene(objects=objects, lights=lights)
 
 os.system('cls')
 print()
-image = np.zeros((HEIGHT, WIDTH, 3))
 
-for y in range(HEIGHT):
-    print(f'\r{y + 1}/{HEIGHT}', end='')
-    yy = Q_map(value=-y, lower_limit=-(HEIGHT - 1), upper_limit=0, scaled_lower_limit=SCREEN_DIMS['bottom'], scaled_upper_limit=SCREEN_DIMS['top'])  # -((2 * y / float(HEIGHT - 1)) - 1)  # Q_map(value=-y, lower_limit=-(HEIGHT - 1), upper_limit=0, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (-y + (HEIGHT / 2.0)) / HEIGHT  # Need to make sure I did this right
-    for x in range(WIDTH):
-        xx = Q_map(value=x, lower_limit=0, upper_limit=WIDTH - 1, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (2 * x / float(WIDTH - 1)) - 1  # Q_map(value=x, lower_limit=0, upper_limit=WIDTH - 1, scaled_lower_limit=-1.0, scaled_upper_limit=1.0)  # (x - (WIDTH / 2.0)) / WIDTH
-        pixel = Q_Vector3d(xx, yy, 0)
-
-        origin = CAMERA
-        direction = (pixel - origin).normalized()
-        ray = Ray(origin=origin, direction=direction)
-
-        _, object, intersection_distance = scene.nearest_intersection(ray=ray)
-        image[y, x] = object['color'] if object else (0, 0, 0)
-plt.imsave('image.png', image)
-print()
+scene.render(camera_position=CAMERA, width=WIDTH, height=HEIGHT)
 
 # Test
 # ray_origin = np.array([0, 0, 0])
