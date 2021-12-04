@@ -18,16 +18,14 @@ class Scene:
 
     def nearest_intersection(self, ray: Ray):
         min_distance = math.inf
-        idx = None
         obj = None
-        for index, object in enumerate(self.objects):
+        for _, object in enumerate(self.objects):
             intersection = object['item'].intersect(ray=ray)
             if intersection and intersection < min_distance:
                 min_distance = intersection
-                idx = index
                 obj = object
 
-        return idx, obj, min_distance
+        return obj, min_distance
 
     def render(self, camera_position: Q_Vector3d, width: int = 64, height: int = 64):
         image = np.zeros((height, width, 3))
@@ -45,15 +43,41 @@ class Scene:
                 direction = (pixel - origin).normalized()
                 ray = Ray(origin=origin, direction=direction)
 
-                _, object, intersection_distance = scene.nearest_intersection(ray=ray)
-                image[y, x] = object['color'] if object else (0, 0, 0)
+                nearest_object, distance_to_object = scene.nearest_intersection(ray=ray)
+
+                if nearest_object is None:
+                    continue
+
+                # Lighting
+                object_color = nearest_object['item'].color
+
+                intersection_point = origin + direction * distance_to_object
+                normal_to_surface = (intersection_point - nearest_object['item'].position).normalized()
+                shifted_point = intersection_point + normal_to_surface * 1e-5
+                direction_from_intersection_to_light = (self.lights[0]['position'] - shifted_point).normalized()
+
+                ray = Ray(origin=shifted_point, direction=direction_from_intersection_to_light)
+                nearest_object, distance_to_object = scene.nearest_intersection(ray=ray)
+
+                distance_to_light = (self.lights[0]['position'] - intersection_point).length
+                is_shadowed = distance_to_object < distance_to_light
+
+                intensity = math.fabs(direction_from_intersection_to_light.dot_product(normal_to_surface))
+                object_color = (object_color[0] * self.lights[0]['color'][0] * intensity, object_color[1] * self.lights[0]['color'][1] * intensity, object_color[2] * self.lights[0]['color'][2] * intensity)
+
+                if is_shadowed:
+                    continue
+                else:
+                    image[y, x] = object_color  # nearest_object['color'] if nearest_object else (0, 0, 0)
+
         plt.imsave('image.png', image)
         print()
 
 
 class Primitive:
-    def __init__(self, center: Q_Vector3d):
-        self.center = center
+    def __init__(self, center: Q_Vector3d, color: tuple):
+        self.position = center
+        self.color = color
 
 
 class SpherePrimitive(Primitive):
@@ -62,13 +86,14 @@ class SpherePrimitive(Primitive):
     c = np.linalg.norm(ray_origin - center) ** 2 - radius ** 2
     c = ((ray.origin - self.center).length ** 2) - (self.radius ** 2)
     """
-    def __init__(self, center: Q_Vector3d, radius: float):
-        self.center = center
+    def __init__(self, center: Q_Vector3d, color: tuple, radius: float):
+        # self.center = center
+        Primitive.__init__(self, center=center, color=color)
         self.radius = float(radius)
 
     def intersect(self, ray: Ray):
-        b = 2 * ray.direction.dot_product(other_vector=(ray.origin - self.center))
-        c = ((ray.origin - self.center).length ** 2) - (self.radius ** 2)
+        b = 2 * ray.direction.dot_product(other_vector=(ray.origin - self.position))
+        c = ((ray.origin - self.position).length ** 2) - (self.radius ** 2)
 
         # Test
         # ray_origin = np.array([ray.origin.x, ray.origin.y, ray.origin.z])
@@ -90,13 +115,13 @@ HEIGHT = 480
 CAMERA = Q_Vector3d(0, 0, -1.75)
 
 objects = [
-    {'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=10), radius=1.5), 'color': (1, 0, 1)},
-    {'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=-2, z=25.0), radius=1.0), 'color': (0, 1, 1)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=10), color=(1, 0, 1), radius=1.5)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=0, z=10), color=(0, 1, 1), radius=1.0)},
     # {'id': 3, 'item': SpherePrimitive(center=Q_Vector3d(x=-0, y=-1000, z=0), radius=990.0)},
 ]
 
 lights = [
-    {'location': Q_Vector3d(0, 10, 3), 'color': (1, 1, 1)}
+    {'position': Q_Vector3d(0, 10, 10), 'color': (1, 1, 1)}
 ]
 
 scene = Scene(objects=objects, lights=lights)
