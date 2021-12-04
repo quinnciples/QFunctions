@@ -48,36 +48,47 @@ class Scene:
                 if nearest_object is None:
                     continue
 
-                # Lighting
-                object_color = nearest_object['item'].color
-
                 intersection_point = origin + direction * distance_to_object
                 normal_to_surface = (intersection_point - nearest_object['item'].position).normalized()
                 shifted_point = intersection_point + normal_to_surface * 1e-5
                 direction_from_intersection_to_light = (self.lights[0]['position'] - shifted_point).normalized()
 
                 ray = Ray(origin=shifted_point, direction=direction_from_intersection_to_light)
-                nearest_object, distance_to_object = scene.nearest_intersection(ray=ray)
+                _, distance_to_object = scene.nearest_intersection(ray=ray)
 
                 distance_to_light = (self.lights[0]['position'] - intersection_point).length
                 is_shadowed = distance_to_object < distance_to_light
 
-                intensity = math.fabs(direction_from_intersection_to_light.dot_product(normal_to_surface))
-                object_color = (object_color[0] * self.lights[0]['color'][0] * intensity, object_color[1] * self.lights[0]['color'][1] * intensity, object_color[2] * self.lights[0]['color'][2] * intensity)
-
                 if is_shadowed:
                     continue
-                else:
-                    image[y, x] = object_color  # nearest_object['color'] if nearest_object else (0, 0, 0)
+
+                # Lighting
+                color_value = Q_Vector3d(0, 0, 0)
+
+                # Ambient lighting
+                color_value += nearest_object['item'].ambient * self.lights[0]['color']
+
+                # Diffuse lighting
+                intensity = math.fabs(direction_from_intersection_to_light.dot_product(normal_to_surface))
+                color_value += nearest_object['item'].diffuse * self.lights[0]['color'] * intensity
+
+                # Specular lighting
+                intersection_to_camera = (camera_position - intersection_point).normalized()
+                H = (direction_from_intersection_to_light + intersection_to_camera).normalized()
+                color_value += nearest_object['item'].specular * self.lights[0]['color'] * (normal_to_surface.dot_product(H)) ** (100 / 4)  # nearest_object['shininess']
+
+                image[y, x] = color_value.clamp(0, 1).to_tuple()  # nearest_object['color'] if nearest_object else (0, 0, 0)
 
         plt.imsave('image.png', image)
         print()
 
 
 class Primitive:
-    def __init__(self, center: Q_Vector3d, color: tuple):
+    def __init__(self, center: Q_Vector3d, ambient: Q_Vector3d, diffuse: Q_Vector3d, specular: Q_Vector3d):
         self.position = center
-        self.color = color
+        self.ambient = ambient
+        self.diffuse = diffuse
+        self.specular = specular
 
 
 class SpherePrimitive(Primitive):
@@ -86,9 +97,9 @@ class SpherePrimitive(Primitive):
     c = np.linalg.norm(ray_origin - center) ** 2 - radius ** 2
     c = ((ray.origin - self.center).length ** 2) - (self.radius ** 2)
     """
-    def __init__(self, center: Q_Vector3d, color: tuple, radius: float):
+    def __init__(self, center: Q_Vector3d, ambient: Q_Vector3d, diffuse: Q_Vector3d, specular: Q_Vector3d, radius: float):
         # self.center = center
-        Primitive.__init__(self, center=center, color=color)
+        Primitive.__init__(self, center=center, ambient=ambient, diffuse=diffuse, specular=specular)
         self.radius = float(radius)
 
     def intersect(self, ray: Ray):
@@ -115,13 +126,13 @@ HEIGHT = 480
 CAMERA = Q_Vector3d(0, 0, -1.75)
 
 objects = [
-    {'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=10), color=(1, 0, 1), radius=3)},
-    {'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=0, z=10), color=(0, 1, 1), radius=2.0)},
-    # {'id': 3, 'item': SpherePrimitive(center=Q_Vector3d(x=-0, y=-1000, z=0), radius=990.0)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=15), ambient=Q_Vector3d(0.1, 0, 0.1), diffuse=Q_Vector3d(0.7, 0, 0.7), specular=Q_Vector3d(1.0, 1.0, 1.0), radius=3)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=0, z=15), ambient=Q_Vector3d(0, 0.1, 0.1), diffuse=Q_Vector3d(0, 0.7, 0.7), specular=Q_Vector3d(1.0, 1.0, 1.0), radius=2.0)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=0, y=-1000, z=15), ambient=Q_Vector3d(0.1, 0.1, 0.1), diffuse=Q_Vector3d(0.7, 0.7, 0.7), specular=Q_Vector3d(1.0, 1.0, 1.0), radius=990.0)},
 ]
 
 lights = [
-    {'position': Q_Vector3d(0, 10, 5), 'color': (1, 1, 1)}
+    {'position': Q_Vector3d(0, 10, 5), 'color': Q_Vector3d(1, 1, 1)}
 ]
 
 scene = Scene(objects=objects, lights=lights)

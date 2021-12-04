@@ -184,6 +184,17 @@ class Q_Vector3d:
     def from_Vector3D(other_vector):
         return Q_Vector3d(x=other_vector.x, y=other_vector.y, z=other_vector.z)
 
+    def clamp(self, lower_limit: float, upper_limit: float):
+        return Q_Vector3d(x=Q_clamp(self.x, minimum_limit=lower_limit, maximum_limit=upper_limit),
+                          y=Q_clamp(self.y, minimum_limit=lower_limit, maximum_limit=upper_limit),
+                          z=Q_clamp(self.z, minimum_limit=lower_limit, maximum_limit=upper_limit))
+
+    def to_tuple(self):
+        return (self.x, self.y, self.z)
+
+    def to_list(self):
+        return [self.x, self.y, self.z]
+
     def dot_product(self, other_vector) -> float:
         return self.x * other_vector.x + self.y * other_vector.y + self.z * other_vector.z
 
