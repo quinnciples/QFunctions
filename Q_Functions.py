@@ -8,7 +8,7 @@ global combinations
 combinations = []
 
 
-def Q_clip(value: float, minimum_limit: float, maximum_limit: float):
+def Q_clamp(value: float, minimum_limit: float, maximum_limit: float):
 
     if value < minimum_limit:
         return minimum_limit

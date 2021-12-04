@@ -115,13 +115,13 @@ HEIGHT = 480
 CAMERA = Q_Vector3d(0, 0, -1.75)
 
 objects = [
-    {'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=10), color=(1, 0, 1), radius=1.5)},
-    {'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=0, z=10), color=(0, 1, 1), radius=1.0)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=2.5, y=0, z=10), color=(1, 0, 1), radius=3)},
+    {'item': SpherePrimitive(center=Q_Vector3d(x=-4.5, y=0, z=10), color=(0, 1, 1), radius=2.0)},
     # {'id': 3, 'item': SpherePrimitive(center=Q_Vector3d(x=-0, y=-1000, z=0), radius=990.0)},
 ]
 
 lights = [
-    {'position': Q_Vector3d(0, 10, 10), 'color': (1, 1, 1)}
+    {'position': Q_Vector3d(0, 10, 5), 'color': (1, 1, 1)}
 ]
 
 scene = Scene(objects=objects, lights=lights)
