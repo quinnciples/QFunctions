@@ -175,6 +175,8 @@ class Q_Vector2D:
 
 
 class Q_Vector3d:
+    COINCIDENT = 0.9999
+
     def __init__(self, x: float = 0, y: float = 0, z: float = 0):
         self.x = float(x)
         self.y = float(y)
@@ -191,6 +193,12 @@ class Q_Vector3d:
     @staticmethod
     def NORM_ZAXIS():
         return Q_Vector3d(0, 0, 1)
+
+    @staticmethod
+    def OrthoNormalBasis_fromZ(z_vector):
+        xx = Q_Vector3d.NORM_YAXIS().cross_product(z_vector).normalized if math.fabs(z_vector.dot_product(Q_Vector3d.NORM_XAXIS())) > Q_Vector3d.COINCIDENT else Q_Vector3d.NORM_XAXIS().cross_product(z_vector).normalized
+        yy = z_vector.cross_product(xx).normalized
+        return Q_Vector3d(xx, yy, z_vector)
 
     @staticmethod
     def from_Vector3D(other_vector):
