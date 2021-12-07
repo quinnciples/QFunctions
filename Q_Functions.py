@@ -194,11 +194,14 @@ class Q_Vector3d:
     def NORM_ZAXIS():
         return Q_Vector3d(0, 0, 1)
 
-    @staticmethod
-    def OrthoNormalBasis_fromZ(z_vector):
-        xx = Q_Vector3d.NORM_YAXIS().cross_product(z_vector).normalized if math.fabs(z_vector.dot_product(Q_Vector3d.NORM_XAXIS())) > Q_Vector3d.COINCIDENT else Q_Vector3d.NORM_XAXIS().cross_product(z_vector).normalized
-        yy = z_vector.cross_product(xx).normalized
-        return Q_Vector3d(xx, yy, z_vector)
+    # @staticmethod
+    # def OrthoNormalBasis_fromZ(z_vector):
+    #     if math.fabs(z_vector.dot_product(Q_Vector3d.NORM_XAXIS())) > Q_Vector3d.COINCIDENT:
+    #         xx = Q_Vector3d.NORM_YAXIS().cross_product(z_vector).normalized
+    #     else:
+    #         xx = Q_Vector3d.NORM_XAXIS().cross_product(z_vector).normalized
+    #     yy = z_vector.cross_product(xx).normalized
+    #     return Q_Vector3d(xx, yy, z_vector)
 
     @staticmethod
     def from_Vector3D(other_vector):
@@ -827,6 +830,8 @@ def main():
     cross_product = first_vector.cross_product(other_vector=second_vector)
     print(f'Expecting (-3, 6, -3) -- {cross_product}')
     print(f'Testing cross_product == expected_vector -- {cross_product == expected_vector}')
+    print('Orthonormal Basis')
+    print(Q_Vector3d.OrthoNormalBasis_fromZ(Q_Vector3d(2, 3, 4)))
 
     # https://github.com/OmarAflak/RayTracer-CPP/blob/master/main.cpp
 
