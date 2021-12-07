@@ -181,6 +181,18 @@ class Q_Vector3d:
         self.z = float(z)
 
     @staticmethod
+    def NORM_XAXIS():
+        return Q_Vector3d(1, 0, 0)
+
+    @staticmethod
+    def NORM_YAXIS():
+        return Q_Vector3d(0, 1, 0)
+
+    @staticmethod
+    def NORM_ZAXIS():
+        return Q_Vector3d(0, 0, 1)
+
+    @staticmethod
     def from_Vector3D(other_vector):
         return Q_Vector3d(x=other_vector.x, y=other_vector.y, z=other_vector.z)
 
