@@ -273,10 +273,29 @@ class Q_Vector3d:
             print(type(self), type(other_object))
             raise('Unknown Type')
 
+    def __rmul__(self, other_object):
+        if type(other_object) in (float, int):
+            return Q_Vector3d(x=self.x * other_object, y=self.y * other_object, z=self.z * other_object)
+        elif type(other_object) == Q_Vector3d:
+            return self.element_wise_product(other_vector=other_object)
+        else:
+            print(type(self), type(other_object))
+            raise('Unknown Type')
+
     def __eq__(self, other_vector):
         if type(other_vector) != Q_Vector3d:
+            print(type(self), type(other_vector))
             raise Exception('Other object must be Q_Vector3D.')
         return (self.x == other_vector.x) and (self.y == other_vector.y) and (self.z == other_vector.z)
+
+    def __ne__(self, other_vector):
+        if type(other_vector) != Q_Vector3d:
+            print(type(self), type(other_vector))
+            raise Exception('Other object must be Q_Vector3D.')
+        return not self == other_vector
+
+    def __str__(self):
+        return f'{{{self.x}, {self.y}, {self.z}}}'
 
     #######################################
     #
@@ -284,8 +303,8 @@ class Q_Vector3d:
     #
     #######################################
 
-    def __str__(self):
-        return f'Q_Vector3D(x={self.x}, y={self.y}, z={self.z}, length={self.length})'
+    # def __str__(self):
+    #     return f'Q_Vector3D(x={self.x}, y={self.y}, z={self.z}, length={self.length})'
 
     def __repr__(self):
         return f'Q_Vector3D(x={self.x}, y={self.y}, z={self.z})'
