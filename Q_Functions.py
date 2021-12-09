@@ -297,6 +297,9 @@ class Q_Vector3d:
     def __str__(self):
         return f'{{{self.x}, {self.y}, {self.z}}}'
 
+    def __neg__(self):
+        return self * - 1
+
     #######################################
     #
     # Functions
