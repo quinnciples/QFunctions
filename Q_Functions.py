@@ -176,6 +176,7 @@ class Q_Vector2D:
 
 class Q_Vector3d:
     COINCIDENT = 0.9999
+    EPSILON = 0.000000001
 
     def __init__(self, x: float = 0, y: float = 0, z: float = 0):
         self.x = float(x)
@@ -194,18 +195,18 @@ class Q_Vector3d:
     def NORM_ZAXIS():
         return Q_Vector3d(0, 0, 1)
 
-    # @staticmethod
-    # def OrthoNormalBasis_fromZ(z_vector):
-    #     if math.fabs(z_vector.dot_product(Q_Vector3d.NORM_XAXIS())) > Q_Vector3d.COINCIDENT:
-    #         xx = Q_Vector3d.NORM_YAXIS().cross_product(z_vector).normalized
-    #     else:
-    #         xx = Q_Vector3d.NORM_XAXIS().cross_product(z_vector).normalized
-    #     yy = z_vector.cross_product(xx).normalized
-    #     return Q_Vector3d(xx, yy, z_vector)
-
     @staticmethod
     def from_Vector3D(other_vector):
         return Q_Vector3d(x=other_vector.x, y=other_vector.y, z=other_vector.z)
+
+    @staticmethod
+    def from_normal(normalized_vector):
+        assert math.fabs(normalized_vector.dot_product(other_vector=normalized_vector) - 1.0) < Q_Vector3d.EPSILON
+        return normalized_vector
+
+    @staticmethod
+    def get_normalized_vector(x: float, y: float, z: float):
+        return Q_Vector3d(x=x, y=y, z=z).normalized()
 
     def clamp(self, lower_limit: float, upper_limit: float):
         return Q_Vector3d(x=Q_clamp(self.x, minimum_limit=lower_limit, maximum_limit=upper_limit),
