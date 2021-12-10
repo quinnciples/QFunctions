@@ -306,16 +306,7 @@ class Q_Vector3d:
         return f'{{{self.x}, {self.y}, {self.z}}}'
 
     def __neg__(self):
-        return self * - 1
-
-    #######################################
-    #
-    # Functions
-    #
-    #######################################
-
-    # def __str__(self):
-    #     return f'Q_Vector3D(x={self.x}, y={self.y}, z={self.z}, length={self.length})'
+        return self * -1
 
     def __repr__(self):
         return f'Q_Vector3D(x={self.x}, y={self.y}, z={self.z})'
