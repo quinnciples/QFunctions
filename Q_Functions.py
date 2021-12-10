@@ -229,6 +229,13 @@ class Q_Vector3d:
         return Q_Vector3d(x=self.y * other_vector.z - self.z * other_vector.y, y=self.z * other_vector.x - self.x * other_vector.z, z=self.x * other_vector.y - self.y * other_vector.x)
 
     @property
+    def length_squared(self):
+        """
+        This is included to avoide a square root calculation where possible.
+        """
+        return self.dot_product(other_vector=self)
+
+    @property
     def length(self):
         # return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
         # This should do the same thing...
