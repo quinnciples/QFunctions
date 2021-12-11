@@ -9,7 +9,6 @@ combinations = []
 
 
 def Q_chunks(number_of_items: int, number_of_chunks: int):
-    print(number_of_items, number_of_chunks)
     splits = [0 for _ in range(number_of_chunks)]
     for num in range(number_of_items):
         splits[num % number_of_chunks] += 1
