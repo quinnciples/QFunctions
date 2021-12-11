@@ -8,6 +8,18 @@ global combinations
 combinations = []
 
 
+def Q_chunks(number_of_items: int, number_of_chunks: int):
+    print(number_of_items, number_of_chunks)
+    splits = [0 for _ in range(number_of_chunks)]
+    for num in range(number_of_items):
+        splits[num % number_of_chunks] += 1
+    items_processed = 0
+    for split in splits:
+        starting_item = items_processed
+        items_processed += split
+        yield (starting_item, items_processed)
+
+
 def Q_clamp(value: float, minimum_limit: float, maximum_limit: float):
 
     if value < minimum_limit:
@@ -851,10 +863,12 @@ def main():
     cross_product = first_vector.cross_product(other_vector=second_vector)
     print(f'Expecting (-3, 6, -3) -- {cross_product}')
     print(f'Testing cross_product == expected_vector -- {cross_product == expected_vector}')
-    print('Orthonormal Basis')
-    print(Q_Vector3d.OrthoNormalBasis_fromZ(Q_Vector3d(2, 3, 4)))
 
     # https://github.com/OmarAflak/RayTracer-CPP/blob/master/main.cpp
+
+    for chunk in Q_chunks(number_of_items=10, number_of_chunks=6):
+        print(chunk)
+
 
 
 if __name__ == "__main__":
