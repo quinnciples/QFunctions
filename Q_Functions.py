@@ -8,15 +8,30 @@ global combinations
 combinations = []
 
 
-def Q_chunks(number_of_items: int, number_of_chunks: int):
-    splits = [0 for _ in range(number_of_chunks)]
-    for num in range(number_of_items):
-        splits[num % number_of_chunks] += 1
-    items_processed = 0
-    for split in splits:
-        starting_item = items_processed
-        items_processed += split
-        yield (starting_item, items_processed)
+def Q_buckets(number_of_items: int, number_of_buckets: int):
+    # splits = [0 for _ in range(number_of_buckets)]
+    # for num in range(number_of_items):
+    #     splits[num % number_of_buckets] += 1
+    # items_processed = 0
+    # for split in splits:
+    #     starting_item = items_processed
+    #     items_processed += split
+    #     yield (starting_item, items_processed)
+    items_per_bucket = number_of_items // number_of_buckets
+    leftover = number_of_items % number_of_buckets
+    leftover_per_bucket = max(leftover // number_of_buckets, 1) if leftover > 0 else 0
+    starting_point = 0
+    ending_point = 0
+    while ending_point <= number_of_items and number_of_buckets > 0:
+        starting_point = ending_point
+        ending_point = min(ending_point + items_per_bucket + leftover_per_bucket, number_of_items)
+        items_remaining = number_of_items - ending_point
+        number_of_buckets -= 1
+        if number_of_buckets:
+            leftover = items_remaining % number_of_buckets
+            leftover_per_bucket = max(leftover // number_of_buckets, 1) if leftover > 0 else 0
+        yield starting_point, ending_point, ending_point - starting_point
+
 
 
 def Q_clamp(value: float, minimum_limit: float, maximum_limit: float):
@@ -865,8 +880,8 @@ def main():
 
     # https://github.com/OmarAflak/RayTracer-CPP/blob/master/main.cpp
 
-    for chunk in Q_chunks(number_of_items=10, number_of_chunks=6):
-        print(chunk)
+    for chunk in Q_buckets(number_of_items=17, number_of_buckets=3):
+        print(f'17 items in {3} buckets -- {chunk}')
 
 
 
