@@ -30,7 +30,7 @@ def Q_buckets(number_of_items: int, number_of_buckets: int):
         if number_of_buckets:
             leftover = items_remaining % number_of_buckets
             leftover_per_bucket = max(leftover // number_of_buckets, 1) if leftover > 0 else 0
-        yield starting_point, ending_point, ending_point - starting_point
+        yield starting_point, ending_point
 
 
 
