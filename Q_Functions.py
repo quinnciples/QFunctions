@@ -880,10 +880,5 @@ def main():
 
     # https://github.com/OmarAflak/RayTracer-CPP/blob/master/main.cpp
 
-    for chunk in Q_buckets(number_of_items=17, number_of_buckets=3):
-        print(f'17 items in {3} buckets -- {chunk}')
-
-
-
 if __name__ == "__main__":
     main()
