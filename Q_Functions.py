@@ -234,6 +234,20 @@ class Q_Vector3d:
     def get_normalized_vector(x: float, y: float, z: float):
         return Q_Vector3d(x=x, y=y, z=z).normalized()
 
+    @staticmethod
+    def random_in_unit_disk():
+        p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, 0)
+        while p.length_squared() >= 1:
+            p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, 0)
+        return p
+
+    @staticmethod
+    def random_in_unit_sphere():
+        p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1)
+        while p.length_squared >= 1.0:
+            p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1)
+        return p
+
     def clamp(self, lower_limit: float, upper_limit: float):
         return Q_Vector3d(x=Q_clamp(self.x, minimum_limit=lower_limit, maximum_limit=upper_limit),
                           y=Q_clamp(self.y, minimum_limit=lower_limit, maximum_limit=upper_limit),
