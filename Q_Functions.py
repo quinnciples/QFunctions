@@ -236,6 +236,7 @@ class Q_Vector3d:
 
     @staticmethod
     def random_in_unit_disk():
+        # return Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, 0).normalized()
         p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, 0)
         while p.length_squared >= 1:
             p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, 0)
@@ -243,6 +244,7 @@ class Q_Vector3d:
 
     @staticmethod
     def random_in_unit_sphere():
+        # return Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1).normalized()
         p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1)
         while p.length_squared >= 1.0:
             p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1)
