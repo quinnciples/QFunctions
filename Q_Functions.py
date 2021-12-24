@@ -237,6 +237,7 @@ class Q_Vector3d:
     @staticmethod
     def random_in_unit_disk():
         # return Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, 0).normalized()
+        # return Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, 0)
         p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, 0)
         while p.length_squared >= 1:
             p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, 0)
@@ -244,11 +245,18 @@ class Q_Vector3d:
 
     @staticmethod
     def random_in_unit_sphere():
-        # return Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1).normalized()
-        p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1)
-        while p.length_squared >= 1.0:
-            p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1)
-        return p
+        theta = 2 * math.pi * random.random()
+        phi = math.acos(1 - 2 * random.random())
+        x = math.sin(phi) * math.cos(theta)
+        y = math.sin(phi) * math.sin(theta)
+        z = math.cos(phi)
+        return Q_Vector3d(x, y, z)
+        # # return Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1).normalized()
+        # # return Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1)
+        # p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1)
+        # while p.length_squared >= 1.0:
+        #     p = Q_Vector3d(random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 2 - 1)
+        # return p
 
     def clamp(self, lower_limit: float, upper_limit: float):
         return Q_Vector3d(x=Q_clamp(self.x, minimum_limit=lower_limit, maximum_limit=upper_limit),
@@ -352,9 +360,6 @@ class Q_Vector3d:
 
     def __neg__(self):
         return self * -1
-
-    def __repr__(self):
-        return f'Q_Vector3D(x={self.x}, y={self.y}, z={self.z})'
 
 
 class Q_MinMaxScaler:
