@@ -487,6 +487,23 @@ def Q_zigZag(array: list) -> list:
         Moving down 1 element, or right 1 element if this is the bottom row
         Moving diagnally up-right until the first row is reached, or the right edge is reached
     - repeating the above steps until all elements have been traversed
+
+    [[1, 2],
+     [3. 4]]
+    >>> Q_zigZag(array=[[1, 2], [3, 4]])
+    [1, 2, 3, 4]
+
+    [[1, 2, 3, 4, 5],
+     [6, 7, 8, 9, 10]]
+    >>> Q_zigZag(array=[[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]])
+    [1, 2, 6, 7, 3, 4, 8, 9, 5, 10]
+
+    [[1,  2,  3,  4,  5],
+     [6,  7,  8,  9,  10],
+     [11, 12, 13, 14, 15]]
+    >>> Q_zigZag(array=[[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14, 15]])
+    [1, 2, 6, 11, 7, 3, 4, 8, 12, 13, 9, 5, 10, 14, 15]
+
     """
     DIRECTIONS = {'UP': (-1, 0),
                   'DOWN': (1, 0),
@@ -501,12 +518,7 @@ def Q_zigZag(array: list) -> list:
     zigzag_elements = []
 
     def isValidPosition(row: int, column: int) -> bool:
-        if 0 <= row <= ARRAY_HEIGHT - 1:
-            if 0 <= column <= ARRAY_WIDTH - 1:
-                # print(f'Testing row: {row}  column {column} - PASS')
-                return True
-        # print(f'Testing row: {row}  column {column} - FAIL')
-        return False
+        return 0 <= row <= ARRAY_HEIGHT - 1 and 0 <= column <= ARRAY_WIDTH - 1
 
     row, column = STARTING_POSITION
     direction = (0, 0)
