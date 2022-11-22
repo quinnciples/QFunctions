@@ -145,8 +145,8 @@ class SpherePrimitive(Primitive):
         return None
 
 
-WIDTH = 128
-HEIGHT = 96
+WIDTH = 512
+HEIGHT = 384
 CAMERA = Q_Vector3d(0, 0, -1.75)
 MAX_DEPTH = 5
 
