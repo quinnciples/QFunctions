@@ -3,9 +3,176 @@ import math
 import itertools
 import random
 import datetime
-from typing import List
+from typing import List, Iterable
 from noise import pnoise2
 import pytest
+
+
+def Q_flood_fill(array: List[List], row: int, column: int) -> List[List]:
+    """
+    >>> test_array = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
+    >>> expected_array = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    >>> Q_flood_fill(test_array, row=1, column=1)
+    [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    >>> Q_flood_fill(test_array, row=1, column=1) == expected_array
+    True
+    >>> test_array = [[1, 1, 0], [0, 1, 0], [0, 1, 1]]
+    >>> expected_array = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    >>> Q_flood_fill(test_array, row=0, column=0)
+    [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    >>> Q_flood_fill(test_array, row=0, column=0) == expected_array
+    True
+    >>> test_array = [[1, 1, 0], [0, 1, 0], [0, 0, 0]]
+    >>> expected_array = [[1, 1, 0], [0, 1, 0], [0, 0, 0]]
+    >>> Q_flood_fill(test_array, row=2, column=1)
+    [[1, 1, 0], [0, 1, 0], [0, 0, 0]]
+    >>> Q_flood_fill(test_array, row=2, column=1) == expected_array
+    True
+    >>> test_array = [[1 for _ in range(20)] for __ in range(25)]
+    >>> expected_array = [[0 for _ in range(20)] for __ in range(25)]
+    >>> Q_flood_fill(test_array, row=0, column=0) == expected_array
+    True
+    """
+    rows = len(array)
+    columns = len(array[0])
+
+    def flood(row: int, column: int) -> None:
+        if row < 0 or row >= rows or column < 0 or column >= columns:
+            return
+        if array[row][column] == 0:
+            return
+        array[row][column] = 0
+        flood(row - 1, column)
+        flood(row + 1, column)
+        flood(row, column - 1)
+        flood(row, column + 1)
+
+    if not 0 <= row < rows:
+        raise ValueError('Invalid row index')
+    if not 0 <= column < columns:
+        raise ValueError('Invalid column index')
+
+    flood(row, column)
+    return array
+
+
+def Q_flood_fill_indices(array: List[List], row: int, column: int) -> Iterable:
+    """
+    Generates (row, column) indices for a two dimensional list using a generic floodfill algorithm.
+
+    The main purpose is to allow a floodfill process to be executed on proprietary data, assuming
+        the proprietary data can be expressed as a two-dimensional list containg only 0's or 1's.
+
+    Example:
+        # Pseudo-python
+        # Convert user data to input format
+        # Pre-fill two-dimensional list with 0's
+        input_list = [[0 for each column in user data] for each row in user data]
+        # Mark the corresponding 1's
+        for row_idx, row in enumerate(user_data):
+            for col_idx, item in enumerate(row):
+                input_list[row_idx][col_idx] = 1 if item.criteria else 0
+
+        # Update our custom data based on the indices generated
+        for row_idx, col_idx in Q_flood_fill_indices(array=input_list, row=1, column=1):
+            user_data[row_idx][col_idx].update_attribute()
+
+    Args:
+        array: A two dimensional list of 0's or 1's. 0's are treated as the
+            empty space and 1's are the fill value.
+        row: the row index to start the floodfill process.
+        column: the column index to start the floodfill process.
+
+    Returns:
+        Produces an iterable generator which yields tuples containg the row and column
+            indices that would be affected during the floodfill process.
+
+    Raises:
+        ValueError: An invalid index was passed into the function
+
+    >>> test_array = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
+    >>> expected_array = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    >>> list(Q_flood_fill_indices(test_array, row=1, column=1))
+    [(1, 1)]
+    >>> test_array = [[1, 1, 0], [0, 1, 0], [0, 1, 1]]
+    >>> expected_array = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+    >>> list(Q_flood_fill_indices(test_array, row=0, column=0))
+    [(0, 0), (0, 1), (1, 1), (2, 1), (2, 2)]
+    >>> test_array = [[1, 1, 0], [0, 1, 0], [0, 0, 0]]
+    >>> expected_array = [[1, 1, 0], [0, 1, 0], [0, 0, 0]]
+    >>> list(Q_flood_fill_indices(test_array, row=2, column=1))
+    []
+    >>> test_array = [[1 for _ in range(20)] for __ in range(25)]
+    >>> len(list(Q_flood_fill_indices(test_array, row=0, column=0)))
+    500
+    """
+    rows = len(array)
+    columns = len(array[0])
+
+    def flood(row: int, column: int) -> None:
+        if row < 0 or row >= rows or column < 0 or column >= columns:
+            return
+        if array[row][column] == 0:
+            return
+        yield row, column
+        array[row][column] = 0
+        yield from flood(row - 1, column)
+        yield from flood(row + 1, column)
+        yield from flood(row, column - 1)
+        yield from flood(row, column + 1)
+
+    if not 0 <= row < rows:
+        raise ValueError('Invalid row index')
+    if not 0 <= column < columns:
+        raise ValueError('Invalid column index')
+
+    yield from flood(row, column)
+    return
+
+
+def Q_rotate_matrix_left(matrix: list) -> list:
+    """
+    >>> matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    >>> expected_matrix = [[3, 6, 9], [2, 5, 8], [1, 4, 7]]
+    >>> Q_rotate_matrix_left(matrix=matrix)
+    [[3, 6, 9], [2, 5, 8], [1, 4, 7]]
+    >>> matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    >>> expected_matrix == Q_rotate_matrix_left(matrix=matrix)
+    True
+    >>> matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    >>> matrix
+    [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    >>> matrix = Q_rotate_matrix_left(matrix=matrix)
+    >>> matrix
+    [[3, 6, 9], [2, 5, 8], [1, 4, 7]]
+    >>> matrix = Q_rotate_matrix_left(matrix=matrix)
+    >>> matrix
+    [[9, 8, 7], [6, 5, 4], [3, 2, 1]]
+    >>> matrix = Q_rotate_matrix_left(matrix=matrix)
+    >>> matrix
+    [[7, 4, 1], [8, 5, 2], [9, 6, 3]]
+    >>> matrix = Q_rotate_matrix_left(matrix=matrix)
+    >>> matrix
+    [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    """
+    [row.reverse() for row in matrix]
+    matrix = [list(item) for item in zip(*matrix)]
+    return matrix
+
+
+def Q_rotate_matrix_right(matrix: list) -> list:
+    """
+    >>> matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    >>> expected_matrix = [[7, 4, 1], [8, 5, 2], [9, 6, 3]]
+    >>> Q_rotate_matrix_right(matrix=matrix)
+    [[7, 4, 1], [8, 5, 2], [9, 6, 3]]
+    >>> matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    >>> expected_matrix == Q_rotate_matrix_right(matrix=matrix)
+    True
+    """
+    matrix = [list(item) for item in zip(*matrix)]
+    [row.reverse() for row in matrix]
+    return matrix
 
 
 def Q_generate_prime(N: int = 10**8) -> int:
@@ -1279,7 +1446,6 @@ def test_computerphile_idct():
 
 def main():
     print(Q_generate_prime())
-    pass
 
 
 #     banner = """
